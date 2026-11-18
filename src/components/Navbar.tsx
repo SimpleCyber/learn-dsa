@@ -33,12 +33,12 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-stone-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/"
-            className="flex items-center gap-2.5 group transition-transform active:scale-95"
+            className="flex items-center gap-2 sm:gap-2.5 group transition-transform active:scale-95"
           >
             <img
               src="/images/logo.png"
@@ -71,7 +71,7 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Mobile Search Button */}
           <button
             onClick={onOpenPalette}
@@ -101,7 +101,7 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
           {username ? (
             <button
               onClick={() => setShowSettings(prev => !prev)}
-              className="h-8 px-2.5 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-zinc-300 flex items-center gap-2 text-xs font-mono font-medium transition-colors cursor-pointer"
+              className="h-8 px-2 sm:px-2.5 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-zinc-300 flex items-center gap-1.5 sm:gap-2 text-xs font-mono font-medium transition-colors cursor-pointer max-w-[110px] xs:max-w-[140px] sm:max-w-none"
               title={`Connected as @${username}. Click for settings.`}
             >
               {avatarUrl ? (
@@ -115,12 +115,12 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
                   {username.slice(0, 2).toUpperCase()}
                 </span>
               )}
-              <span>@{username}</span>
+              <span className="truncate">@{username}</span>
             </button>
           ) : (
             <button
               onClick={() => setShowSettings(true)}
-              className="h-8 px-2.5 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 text-xs font-medium text-stone-700 dark:text-zinc-300 transition-colors cursor-pointer"
+              className="h-8 px-2 sm:px-2.5 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 text-xs font-medium text-stone-700 dark:text-zinc-300 transition-colors cursor-pointer"
             >
               Connect LC
             </button>

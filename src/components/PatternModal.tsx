@@ -68,24 +68,24 @@ export function PatternModal({ topic, patternIndex, onClose, onOpenProblem }: Pa
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 space-y-5 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-2xl relative"
+        className="w-full max-w-3xl max-h-[92vh] overflow-y-auto p-4 sm:p-8 space-y-4 sm:space-y-5 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-2xl relative"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 pb-4 border-b border-stone-100 dark:border-zinc-800">
-          <div className="flex items-start gap-3">
-            <span className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 font-mono text-sm font-bold grid place-items-center shrink-0 mt-0.5">
+        <div className="flex items-start justify-between gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-stone-100 dark:border-zinc-800">
+          <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
+            <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 font-mono text-xs sm:text-sm font-bold grid place-items-center shrink-0 mt-0.5">
               {pad2(patternIndex + 1)}
             </span>
-            <div>
-              <div className="text-[11px] font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-bold">
+            <div className="min-w-0">
+              <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-orange-600 dark:text-orange-400 font-bold truncate">
                 Topic {pad2(topic.id)}: {topic.name}
               </div>
-              <h3 className="text-xl font-bold text-stone-900 dark:text-zinc-100 mt-0.5">
+              <h3 className="text-base sm:text-xl font-bold text-stone-900 dark:text-zinc-100 mt-0.5 break-words">
                 {pattern[0]}
               </h3>
               <p className="text-xs text-stone-500 dark:text-zinc-400 mt-1">
@@ -95,7 +95,7 @@ export function PatternModal({ topic, patternIndex, onClose, onOpenProblem }: Pa
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200 hover:bg-stone-100 dark:hover:bg-zinc-800 grid place-items-center text-lg cursor-pointer"
+            className="w-8 h-8 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200 hover:bg-stone-100 dark:hover:bg-zinc-800 grid place-items-center text-lg cursor-pointer shrink-0"
           >
             <CloseIcon className="w-4 h-4" />
           </button>
@@ -195,7 +195,7 @@ export function PatternModal({ topic, patternIndex, onClose, onOpenProblem }: Pa
                 {copied ? 'Copied!' : 'Copy Code'}
               </button>
             </div>
-            <pre className="p-4 rounded-xl bg-stone-900 text-zinc-100 dark:bg-zinc-950 dark:border dark:border-zinc-800 font-mono text-xs overflow-x-auto leading-relaxed">
+            <pre className="p-3 sm:p-4 rounded-xl bg-stone-900 text-zinc-100 dark:bg-zinc-950 dark:border dark:border-zinc-800 font-mono text-[11px] sm:text-xs overflow-x-auto leading-relaxed">
               <code>{code}</code>
             </pre>
           </div>

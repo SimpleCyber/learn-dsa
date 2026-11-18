@@ -113,14 +113,14 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center pt-20 p-4 animate-in fade-in"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center pt-10 sm:pt-20 p-3 sm:p-4 animate-in fade-in"
       onClick={onClose}
     >
       <div
         className="w-full max-w-xl rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-stone-100 dark:border-zinc-800">
+        <div className="flex items-center gap-3 px-3.5 sm:px-4 py-2.5 sm:py-3 border-b border-stone-100 dark:border-zinc-800">
           <Search className="w-4 h-4 text-stone-400 shrink-0" />
           <input
             type="text"
@@ -128,14 +128,14 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             onChange={e => setQuery(e.target.value)}
             placeholder="Search topics, patterns, or problems"
             autoFocus
-            className="flex-1 bg-transparent text-sm text-stone-900 dark:text-zinc-100 outline-none placeholder:text-stone-400"
+            className="flex-1 bg-transparent text-xs sm:text-sm text-stone-900 dark:text-zinc-100 outline-none placeholder:text-stone-400"
           />
           <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-stone-100 dark:bg-zinc-800 text-stone-500 border border-stone-200 dark:border-zinc-700 shrink-0">
             ESC
           </kbd>
         </div>
 
-        <div className="max-h-80 overflow-y-auto p-2">
+        <div className="max-h-[65vh] sm:max-h-80 overflow-y-auto p-2">
           {isDefaultView && (
             <div className="px-3 pt-1.5 pb-1 text-[11px] font-mono uppercase tracking-wider text-stone-400 font-bold">
               Roadmap Topics (12)
@@ -147,9 +147,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
               <button
                 key={idx}
                 onClick={res.action}
-                className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-stone-100 dark:hover:bg-zinc-800/80 flex items-center justify-between gap-3 text-xs transition-colors cursor-pointer group"
+                className="w-full text-left px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl hover:bg-stone-100 dark:hover:bg-zinc-800/80 flex items-center justify-between gap-2.5 text-xs transition-colors cursor-pointer group"
               >
-                <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <span className="text-stone-400 group-hover:text-orange-500 transition-colors shrink-0">
                     {res.type === 'topic' ? (
                       <Layers className="w-4 h-4" />
@@ -159,13 +159,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                       <Code2 className="w-4 h-4" />
                     )}
                   </span>
-                  <div className="truncate">
-                    <span className="font-semibold text-stone-800 dark:text-zinc-200">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-stone-800 dark:text-zinc-200 truncate">
                       {res.title}
-                    </span>
-                    <span className="text-stone-400 text-[11px] ml-2">
+                    </div>
+                    <div className="text-stone-400 text-[11px] truncate mt-0.5">
                       {res.sub}
-                    </span>
+                    </div>
                   </div>
                 </div>
                 <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-stone-100 dark:bg-zinc-800 text-stone-500 shrink-0">

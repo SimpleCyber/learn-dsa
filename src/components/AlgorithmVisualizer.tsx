@@ -57,7 +57,7 @@ export function AlgorithmVisualizer({ vizKey }: AlgorithmVisualizerProps) {
       </div>
 
       {/* Visualizer Cells */}
-      <div className="flex gap-2 flex-wrap items-end min-h-[72px] py-2">
+      <div className="flex gap-2 items-end min-h-[72px] py-2 overflow-x-auto no-scrollbar pb-3">
         {current.a.map((val, idx) => {
           const isHi = current.hi?.includes(idx);
           const inRange = current.range && idx >= current.range[0] && idx <= current.range[1];
@@ -71,7 +71,7 @@ export function AlgorithmVisualizer({ vizKey }: AlgorithmVisualizerProps) {
           return (
             <div
               key={idx}
-              className={`w-11 text-center border-2 rounded-lg py-1.5 transition-all duration-200 ${
+              className={`w-11 shrink-0 text-center border-2 rounded-lg py-1.5 transition-all duration-200 ${
                 isHi
                   ? 'bg-orange-500/15 border-orange-500 -translate-y-1 scale-105'
                   : inRange

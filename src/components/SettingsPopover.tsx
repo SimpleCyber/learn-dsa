@@ -35,7 +35,7 @@ export function SettingsPopover({ onClose }: SettingsPopoverProps) {
   const getAc = (diff: string) => acStats.find(s => s.difficulty === diff)?.count ?? 0;
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-80 z-50 p-4 shadow-xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl space-y-3.5 animate-in fade-in zoom-in-95">
+    <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-sm sm:w-80 z-50 p-4 shadow-xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl space-y-3.5 animate-in fade-in zoom-in-95">
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
         <div className="flex items-center gap-2">
