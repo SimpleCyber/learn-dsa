@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSA Roadmap in C++</title>
+<script>
+  try {
+    var t = localStorage.getItem('dsa.theme');
+    if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+  } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: {
+    sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+    mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] } } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  .tick-pop { animation: pop .3s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes pop { 0% { transform: scale(.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .fade-in { animation: fade .25s ease both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  details > summary { list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .chev { transform: rotate(180deg); }
+</style>
+</head>
+<body class="bg-stone-50 text-stone-800 dark:bg-zinc-950 dark:text-zinc-200 antialiased font-sans min-h-screen">
+
+<header class="sticky top-0 z-30 border-b border-stone-200 dark:border-zinc-800 bg-stone-50/80 dark:bg-zinc-950/80 backdrop-blur">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
+    <a href="#/intro" class="flex items-center gap-2 font-semibold tracking-tight">
+      <span class="grid place-items-center w-7 h-7 rounded-md bg-orange-500 text-white font-mono text-xs font-semibold">{}</span>
+      <span>DSA in C++</span>
+    </a>
+    <nav class="hidden sm:flex items-center gap-1 text-sm" id="nav"></nav>
+    <div class="ml-auto flex items-center gap-3">
+      <div id="overall" class="hidden md:flex items-center gap-2 text-xs text-stone-500 dark:text-zinc-400"></div>
+      <div id="userChip" class="hidden sm:flex items-center gap-2 text-sm"></div>
+      <button id="themeBtn" class="h-9 w-9 rounded-lg border border-stone-200 dark:border-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-900 grid place-items-center" aria-label="Toggle theme" title="Toggle light / dark">
+        <svg class="w-[18px] h-[18px] hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/></svg>
+        <svg class="w-[18px] h-[18px] dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="sm:hidden flex gap-1 px-4 pb-2 text-sm overflow-x-auto" id="navMobile"></nav>
+</header>
+
+<main id="app" class="max-w-7xl mx-auto px-4 sm:px-6 py-8"></main>
+
+<footer class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 text-xs text-stone-400 dark:text-zinc-600">
+  Ticks come from your recent accepted submissions (leetcode-api-pied.vercel.app). Progress is stored in this browser only.
+</footer>
+
+<script>
+/* ---------------------------------------------------------------- DATA */
+const API = 'https://leetcode-api-pied.vercel.app';
+
+// q: [number, title, level, pattern]   cp: [number, title, level, note]
+const TOPICS = [
+{ id: 1, name: 'Arrays and Strings', weeks: '1-2 weeks',
+  intro: 'Learn in-place updates and prefix sums first; nearly every later topic builds on them. Start with a quick read on Big-O (the idea only), then begin.',
+  patterns: [
+    ['Traversal and running value', 'One pass keeping a running min, max or count (buy/sell stock).'],
+    ['Write pointer (in-place edit)', 'One index reads, another writes (remove duplicates, move zeroes).'],
+    ['Prefix and suffix arrays', 'Precompute cumulative sums or products so range queries are O(1).'],
+    ["Kadane's algorithm", 'Best subarray ending here = max(current element, previous best + current).'],
+    ['Reverse trick', 'Rotate by reversing the whole array, then the two parts.'],
+    ['Dutch national flag', 'Three-way partition with low, mid and high pointers.'],
+    ['Matrix layers', 'Process by rows, columns or rings (spiral, rotate image).'],
+    ['String parsing', 'Skip spaces, handle sign, guard against overflow.']],
+  q: [
+    [485,'Max Consecutive Ones','E','Running count'],
+    [26,'Remove Duplicates from Sorted Array','E','Write pointer'],
+    [283,'Move Zeroes','E','Write pointer'],
+    [121,'Best Time to Buy and Sell Stock','E','Running min'],
+    [303,'Range Sum Query - Immutable','E','Prefix sum'],
+    [53,'Maximum Subarray','M','Kadane'],
+    [238,'Product of Array Except Self','M','Prefix and suffix'],
+    [189,'Rotate Array','M','Reverse trick'],
+    [75,'Sort Colors','M','Dutch flag'],
+    [48,'Rotate Image','M','Matrix layers'],
+    [54,'Spiral Matrix','M','Matrix layers'],
+    [73,'Set Matrix Zeroes','M','Matrix, in-place markers'],
+    [14,'Longest Common Prefix','E','String scan'],
+    [125,'Valid Palindrome','E','String scan'],
+    [8,'String to Integer (atoi)','M','String parsing']],
+  cp: [
+    [169,'Majority Element','E','Classic, Boyer-Moore voting'],
+    [152,'Maximum Product Subarray','M','Kadane variant tracking max and min'],
+    [31,'Next Permutation','M','Classic: pivot, swap, reverse the tail'],
+    [442,'Find All Duplicates in an Array','M','Array itself as a marker'],
+    [151,'Reverse Words in a String','M','String parsing and reversing']] },
+
+{ id: 2, name: 'Hashing', weeks: '1 week',
+  intro: 'Hashing turns a nested-loop O(n^2) search into one O(n) pass by remembering what you have seen. In C++ that means unordered_map and unordered_set.',
+  patterns: [
+    ['Complement lookup', 'For each x, check whether target - x was already seen (Two Sum).'],
+    ['Frequency count', 'Count characters or values, then compare or pick by count.'],
+    ['Canonical key grouping', 'Sort the string or build a count signature as the map key (group anagrams).'],
+    ['Set membership', 'Dedupe, or ask "does x - 1 exist?" to find the start of a sequence.'],
+    ['Prefix sum + hashmap', 'Store the first index of each prefix sum; a repeat means a zero-sum or target-sum subarray.'],
+    ['Prefix mod', 'Store prefix sum % k when the question is about divisibility.'],
+    ['Bucket by frequency', 'For top-K, index buckets by count to avoid sorting.']],
+  q: [
+    [217,'Contains Duplicate','E','Set membership'],
+    [1,'Two Sum','E','Complement lookup'],
+    [242,'Valid Anagram','E','Frequency count'],
+    [387,'First Unique Character in a String','E','Frequency count'],
+    [205,'Isomorphic Strings','E','Two-way mapping'],
+    [49,'Group Anagrams','M','Canonical key'],
+    [347,'Top K Frequent Elements','M','Frequency + bucket'],
+    [36,'Valid Sudoku','M','Sets per row, column, box'],
+    [128,'Longest Consecutive Sequence','M','Set, sequence start'],
+    [560,'Subarray Sum Equals K','M','Prefix sum + hashmap'],
+    [523,'Continuous Subarray Sum','M','Prefix mod'],
+    [454,'4Sum II','M','Split into two halves']],
+  cp: [
+    [380,'Insert Delete GetRandom O(1)','M','Classic design: vector + hashmap'],
+    [525,'Contiguous Array','M','Map 0 to -1, prefix sum + hashmap'],
+    [974,'Subarray Sums Divisible by K','M','Prefix mod pattern'],
+    [953,'Verifying an Alien Dictionary','E','Map letters to their rank'],
+    [41,'First Missing Positive','H','Index-as-hash trick, a hard classic']] },
+
+{ id: 3, name: 'Two Pointers and Sliding Window', weeks: '1-2 weeks',
+  intro: 'Both patterns replace a nested loop with two indices that only move forward, giving O(n). Two pointers needs sorted or symmetric structure; a sliding window needs a contiguous range.',
+  patterns: [
+    ['Opposite ends', 'Left and right move inward on a sorted array (pair sum, container with most water).'],
+    ['Fix one, two-pointer the rest', 'Sort, fix i, then run opposite-end pointers on the remainder (3Sum, 4Sum). Skip duplicates.'],
+    ['Fast and slow / write pointer', 'Same direction, different speeds or roles.'],
+    ['Fixed-size window', 'Add the new element, drop the old one, update the answer.'],
+    ['Variable window (longest)', 'Expand right, shrink left while invalid, record the best length.'],
+    ['Variable window (shortest)', 'Expand until valid, then shrink while it stays valid.'],
+    ['Window + count map', 'Track character or value counts (permutation in string, minimum window).'],
+    ['At most K trick', 'Exactly K = atMost(K) - atMost(K - 1).']],
+  q: [
+    [167,'Two Sum II - Input Array Is Sorted','E','Opposite ends'],
+    [11,'Container With Most Water','M','Opposite ends'],
+    [15,'3Sum','M','Fix one + two pointers'],
+    [42,'Trapping Rain Water','H','Opposite ends with max tracking'],
+    [643,'Maximum Average Subarray I','E','Fixed window'],
+    [3,'Longest Substring Without Repeating Characters','M','Variable window + set'],
+    [424,'Longest Repeating Character Replacement','M','Variable window + counts'],
+    [1004,'Max Consecutive Ones III','M','Variable window'],
+    [209,'Minimum Size Subarray Sum','M','Shortest window'],
+    [567,'Permutation in String','M','Fixed window + counts'],
+    [76,'Minimum Window Substring','H','Shortest window + counts']],
+  cp: [
+    [88,'Merge Sorted Array','E','Classic, merge from the back'],
+    [16,'3Sum Closest','M','Variant of 3Sum'],
+    [438,'Find All Anagrams in a String','M','Fixed window + counts'],
+    [904,'Fruit Into Baskets','M','Variable window, at most 2 distinct'],
+    [713,'Subarray Product Less Than K','M','Variable window counting subarrays']] },
+
+{ id: 4, name: 'Stack and Queue', weeks: '1-2 weeks',
+  intro: 'Use a stack when the most recent unfinished thing matters, and a queue when order of arrival matters. The monotonic stack is the pattern that shows up most often. In C++: stack, queue, deque.',
+  patterns: [
+    ['Matching and nesting', 'Push openers, pop on closers (parentheses, decode string).'],
+    ['Expression evaluation', 'Operand stack for postfix, or operator stack for infix with precedence.'],
+    ['Monotonic stack (next greater or smaller)', 'Keep the stack sorted; pop while the new element breaks the order, and the popped element\'s answer is the new one.'],
+    ['Monotonic stack for areas', 'Histogram and rain-water style problems use the popped bar\'s width.'],
+    ['Auxiliary stack', 'Store the running min alongside each value (min stack).'],
+    ['Two stacks as a queue / queues as a stack', 'Classic design questions.'],
+    ['Monotonic deque', 'Window maximum in O(n) by keeping candidates in decreasing order.']],
+  q: [
+    [20,'Valid Parentheses','E','Matching'],
+    [155,'Min Stack','M','Auxiliary stack'],
+    [232,'Implement Queue using Stacks','E','Two stacks'],
+    [225,'Implement Stack using Queues','E','Queue as stack'],
+    [150,'Evaluate Reverse Polish Notation','M','Expression evaluation'],
+    [71,'Simplify Path','M','Stack of path parts'],
+    [394,'Decode String','M','Nested stack'],
+    [496,'Next Greater Element I','E','Monotonic stack'],
+    [739,'Daily Temperatures','M','Monotonic stack'],
+    [503,'Next Greater Element II','M','Monotonic stack, circular'],
+    [853,'Car Fleet','M','Sort + stack'],
+    [84,'Largest Rectangle in Histogram','H','Monotonic stack for areas'],
+    [239,'Sliding Window Maximum','H','Monotonic deque']],
+  cp: [
+    [1047,'Remove All Adjacent Duplicates in String','E','Classic stack cleanup'],
+    [901,'Online Stock Span','M','Monotonic stack with stored counts'],
+    [402,'Remove K Digits','M','Monotonic stack with a removal budget'],
+    [622,'Design Circular Queue','M','Classic design with a fixed array'],
+    [227,'Basic Calculator II','M','Expression evaluation with precedence']] },
+
+{ id: 5, name: 'Linked List', weeks: '1-2 weeks',
+  intro: 'Linked list problems are about careful pointer handling, and four tools cover most of them: a dummy node, fast and slow pointers, in-place reversal, and merging. Draw the pointers on paper before coding.',
+  patterns: [
+    ['Dummy head node', 'Removes special cases when the head can change (remove elements, merge, add numbers).'],
+    ['Fast and slow pointers', 'Find the middle, detect a cycle, find the cycle start (Floyd\'s algorithm).'],
+    ['In-place reversal', 'Three pointers (prev, curr, next); reverse a sublist or groups of k.'],
+    ['Gap pointers', 'Move one pointer n steps ahead, then move both (nth node from the end).'],
+    ['Merge two sorted lists', 'The base for sort list and merge k lists.'],
+    ['Split, reverse, merge', 'Reorder list and palindrome check combine the first three patterns.'],
+    ['Hashmap or interleaving', 'Copy a list with random pointers.'],
+    ['Doubly linked list + hashmap', 'O(1) cache structures (LRU).']],
+  q: [
+    [206,'Reverse Linked List','E','In-place reversal'],
+    [21,'Merge Two Sorted Lists','E','Merge, dummy node'],
+    [203,'Remove Linked List Elements','E','Dummy node'],
+    [83,'Remove Duplicates from Sorted List','E','Single pass'],
+    [876,'Middle of the Linked List','E','Fast and slow'],
+    [141,'Linked List Cycle','E','Fast and slow'],
+    [142,'Linked List Cycle II','M',"Floyd's cycle start"],
+    [160,'Intersection of Two Linked Lists','E','Two pointers, swap heads'],
+    [19,'Remove Nth Node From End of List','M','Gap pointers'],
+    [234,'Palindrome Linked List','E','Middle + reverse'],
+    [2,'Add Two Numbers','M','Dummy node + carry'],
+    [143,'Reorder List','M','Split, reverse, merge'],
+    [138,'Copy List with Random Pointer','M','Hashmap or interleave'],
+    [148,'Sort List','M','Merge sort on lists'],
+    [25,'Reverse Nodes in k-Group','H','Group reversal']],
+  cp: [
+    [92,'Reverse Linked List II','M','Reverse a sublist in place'],
+    [24,'Swap Nodes in Pairs','M','Dummy node and pointer rewiring'],
+    [61,'Rotate List','M','Find length, link tail to head, cut'],
+    [328,'Odd Even Linked List','M','Two chains built in one pass'],
+    [146,'LRU Cache','M','Classic: doubly linked list + hashmap']] },
+
+{ id: 6, name: 'Binary Search', weeks: '1-2 weeks',
+  intro: 'Binary search works on any yes/no condition that flips once across an ordered range, not just on sorted arrays. Decide what lo and hi mean before you write code. In C++, know lower_bound and upper_bound, and compute mid as lo + (hi - lo) / 2.',
+  patterns: [
+    ['Classic search', 'Find an exact index in a sorted array.'],
+    ['Lower and upper bound', 'First index >= x, or first index > x (insert position, first and last occurrence).'],
+    ['Rotated sorted array', 'One half is always sorted; check which half and whether the target lies in it.'],
+    ['Search on the answer', 'Binary search over the answer value with a feasibility function (Koko bananas, ship capacity, split array).'],
+    ['Peak or boundary finding', 'Compare mid with mid + 1 to decide which side to keep.'],
+    ['Search in a matrix', 'Treat a sorted 2D matrix as one flattened array, or walk from a corner.'],
+    ['Time-stamped lookup', 'Find the latest entry at or before a given time.']],
+  q: [
+    [704,'Binary Search','E','Classic search'],
+    [35,'Search Insert Position','E','Lower bound'],
+    [69,'Sqrt(x)','E','Search on the answer'],
+    [34,'Find First and Last Position of Element in Sorted Array','M','Lower and upper bound'],
+    [33,'Search in Rotated Sorted Array','M','Rotated array'],
+    [153,'Find Minimum in Rotated Sorted Array','M','Rotated array'],
+    [74,'Search a 2D Matrix','M','Flattened search'],
+    [162,'Find Peak Element','M','Peak finding'],
+    [875,'Koko Eating Bananas','M','Search on the answer'],
+    [1011,'Capacity To Ship Packages Within D Days','M','Search on the answer'],
+    [981,'Time Based Key-Value Store','M','Upper bound on timestamps'],
+    [410,'Split Array Largest Sum','H','Search on the answer'],
+    [4,'Median of Two Sorted Arrays','H','Partition binary search']],
+  cp: [
+    [81,'Search in Rotated Sorted Array II','M','Rotated search with duplicates'],
+    [540,'Single Element in a Sorted Array','M','Index parity picks a side'],
+    [1482,'Minimum Number of Days to Make m Bouquets','M','Search on the answer'],
+    [287,'Find the Duplicate Number','M','Classic: binary search on value or Floyd'],
+    [240,'Search a 2D Matrix II','M','Classic corner walk']] },
+
+{ id: 7, name: 'Recursion and Backtracking', weeks: '1-2 weeks',
+  intro: 'Backtracking is recursion that builds a candidate one choice at a time, undoes the choice, and tries the next. Every problem fits one template: choose, recurse, un-choose. Draw the decision tree for a tiny input before coding.',
+  patterns: [
+    ['Include or exclude', 'At each element decide to take it or skip it (subsets).'],
+    ['Permutations', 'A used array, or swap elements in place.'],
+    ['Combinations with a start index', 'Only look forward from the current index so you never repeat a set. Pass the same index to allow reuse.'],
+    ['Skip duplicates', 'Sort first, then skip an element equal to the previous one at the same level.'],
+    ['Partitioning a string', 'Try every valid prefix, then recurse on the rest (palindrome partitioning, IP addresses).'],
+    ['Grid or board search', 'Mark visited, explore four directions, unmark (word search).'],
+    ['Constraint placement with pruning', 'Keep column and diagonal sets to cut invalid branches early (N-Queens, Sudoku).']],
+  q: [
+    [509,'Fibonacci Number','E','Recursion warm-up'],
+    [50,'Pow(x, n)','M','Divide and conquer'],
+    [78,'Subsets','M','Include or exclude'],
+    [90,'Subsets II','M','Skip duplicates'],
+    [46,'Permutations','M','Used array'],
+    [47,'Permutations II','M','Skip duplicates'],
+    [77,'Combinations','M','Start index'],
+    [39,'Combination Sum','M','Start index, reuse'],
+    [40,'Combination Sum II','M','Start index, skip duplicates'],
+    [17,'Letter Combinations of a Phone Number','M','Choose per digit'],
+    [22,'Generate Parentheses','M','Count of open and close'],
+    [131,'Palindrome Partitioning','M','String partitioning'],
+    [79,'Word Search','M','Grid backtracking'],
+    [51,'N-Queens','H','Constraint pruning']],
+  cp: [
+    [216,'Combination Sum III','M','Start index with a fixed count'],
+    [93,'Restore IP Addresses','M','String partitioning with validity checks'],
+    [784,'Letter Case Permutation','M','Choose per character'],
+    [473,'Matchsticks to Square','M','Placement with pruning'],
+    [37,'Sudoku Solver','H','Classic constraint placement']] },
+
+{ id: 8, name: 'Trees and BST', weeks: '2 weeks',
+  intro: 'A tree problem is almost always one recursive function; decide what each node returns to its parent and what it reports on the side. Do the easy depth and traversal problems until recursion feels natural, then move to BST rules and path problems.',
+  patterns: [
+    ['DFS traversals', 'Preorder, inorder and postorder differ only in where you process the node.'],
+    ['Bottom-up return value', 'Return height or a boolean from the children, then combine (depth, balanced tree, same tree).'],
+    ['Return one thing, update another', 'Return the best downward path but update a global answer using both children (diameter, max path sum).'],
+    ['Top-down state', 'Pass a running sum, min or max down the recursion (path sum, count good nodes).'],
+    ['BFS by levels', 'Queue plus the current level size (level order, zigzag, right side view).'],
+    ['Lowest common ancestor', 'If both sides return non-null, the current node is the answer.'],
+    ['BST property', 'Inorder is sorted; validate with min and max bounds; search by going left or right.'],
+    ['Build from traversals', 'Use the preorder root to split inorder.'],
+    ['Serialization', 'Encode with null markers using preorder or level order.']],
+  q: [
+    [104,'Maximum Depth of Binary Tree','E','Bottom-up return'],
+    [226,'Invert Binary Tree','E','DFS'],
+    [100,'Same Tree','E','DFS, two trees'],
+    [101,'Symmetric Tree','E','DFS, mirrored'],
+    [94,'Binary Tree Inorder Traversal','E','Traversal'],
+    [112,'Path Sum','E','Top-down state'],
+    [110,'Balanced Binary Tree','E','Bottom-up return'],
+    [543,'Diameter of Binary Tree','E','Return one, update another'],
+    [102,'Binary Tree Level Order Traversal','M','BFS by levels'],
+    [199,'Binary Tree Right Side View','M','BFS by levels'],
+    [700,'Search in a Binary Search Tree','E','BST search'],
+    [98,'Validate Binary Search Tree','M','BST bounds'],
+    [230,'Kth Smallest Element in a BST','M','Inorder'],
+    [235,'Lowest Common Ancestor of a Binary Search Tree','M','BST property'],
+    [236,'Lowest Common Ancestor of a Binary Tree','M','LCA'],
+    [105,'Construct Binary Tree from Preorder and Inorder Traversal','M','Build from traversals'],
+    [450,'Delete Node in a BST','M','BST restructure'],
+    [124,'Binary Tree Maximum Path Sum','H','Return one, update another']],
+  cp: [
+    [103,'Binary Tree Zigzag Level Order Traversal','M','BFS by levels with direction flipping'],
+    [437,'Path Sum III','M','Top-down state + prefix sums'],
+    [114,'Flatten Binary Tree to Linked List','M','Rewiring pointers'],
+    [1448,'Count Good Nodes in Binary Tree','M','Top-down state with a running max'],
+    [297,'Serialize and Deserialize Binary Tree','H','Classic: preorder with null markers']] },
+
+{ id: 9, name: 'Heap and Priority Queue', weeks: '1 week',
+  intro: 'Reach for a heap whenever you repeatedly need the smallest or largest item from a changing collection. In C++, priority_queue<int> is a max-heap by default; use greater<int> for a min-heap, or a custom comparator for pairs and structs.',
+  patterns: [
+    ['Top K with a size-K min-heap', 'Keep K items, pop the smallest when the size exceeds K; the top is the Kth largest.'],
+    ['Kth element in a stream', 'The same heap, updated on each insert.'],
+    ['Frequency + heap', 'Count with a hashmap, then heap by count.'],
+    ['Merge K sorted sources', 'Push each list\'s head, pop the smallest, push its successor.'],
+    ['Two heaps', 'Max-heap for the lower half, min-heap for the upper half gives a running median.'],
+    ['Greedy with a heap', 'Always process the best available item (task scheduler, reorganize string, IPO).'],
+    ['Closest points or values', 'Heap keyed by distance.']],
+  q: [
+    [1046,'Last Stone Weight','E','Max-heap simulation'],
+    [703,'Kth Largest Element in a Stream','E','Size-K min-heap'],
+    [215,'Kth Largest Element in an Array','M','Size-K min-heap'],
+    [347,'Top K Frequent Elements','M','Frequency + heap'],
+    [973,'K Closest Points to Origin','M','Heap by distance'],
+    [378,'Kth Smallest Element in a Sorted Matrix','M','Heap over rows'],
+    [264,'Ugly Number II','M','Heap or three pointers'],
+    [621,'Task Scheduler','M','Greedy with heap'],
+    [767,'Reorganize String','M','Greedy with heap'],
+    [355,'Design Twitter','M','Merge K sorted + design'],
+    [23,'Merge k Sorted Lists','H','Merge K sorted'],
+    [295,'Find Median from Data Stream','H','Two heaps'],
+    [502,'IPO','H','Greedy with two heaps']],
+  cp: [
+    [1337,'The K Weakest Rows in a Matrix','E','Heap by (soldiers, row index)'],
+    [451,'Sort Characters By Frequency','M','Frequency + heap'],
+    [692,'Top K Frequent Words','M','Heap with a tie-breaking comparator'],
+    [658,'Find K Closest Elements','M','Classic: heap or binary search'],
+    [480,'Sliding Window Median','H','Two heaps with a sliding window']] },
+
+{ id: 10, name: 'Greedy and Intervals', weeks: '1-2 weeks',
+  intro: 'A greedy solution makes the locally best choice at each step and never revisits it; most interval problems become greedy once you sort. The skill is justifying the choice, so for each problem ask why the local pick cannot hurt the final answer.',
+  patterns: [
+    ['Sort, then sweep', 'Sort by start (or end) and walk once, keeping the last chosen interval.'],
+    ['Merge intervals', 'Sort by start; if next start <= current end, extend the end, otherwise close the interval.'],
+    ['Interval scheduling', 'Sort by end time and keep the interval that ends earliest.'],
+    ['Farthest reach', 'Track the farthest index reachable (jump game I and II).'],
+    ['Running balance', 'If a running total drops below zero, restart from the next position (gas station).'],
+    ['Two-pass greedy', 'One pass left to right, one right to left, take the max (candy).'],
+    ['Sort by a custom key', 'Order items so the greedy choice becomes obvious.'],
+    ['Two pointers after sorting', 'Pair the largest with the smallest (boats to save people).']],
+  q: [
+    [455,'Assign Cookies','E','Sort + greedy match'],
+    [860,'Lemonade Change','E','Greedy with counts'],
+    [55,'Jump Game','M','Farthest reach'],
+    [45,'Jump Game II','M','Farthest reach, levels'],
+    [134,'Gas Station','M','Running balance'],
+    [56,'Merge Intervals','M','Sort + merge'],
+    [57,'Insert Interval','M','Merge intervals'],
+    [435,'Non-overlapping Intervals','M','Sort by end'],
+    [452,'Minimum Number of Arrows to Burst Balloons','M','Sort by end'],
+    [763,'Partition Labels','M','Last occurrence + sweep'],
+    [1029,'Two City Scheduling','M','Custom sort key'],
+    [406,'Queue Reconstruction by Height','M','Custom sort key'],
+    [135,'Candy','H','Two-pass greedy']],
+  cp: [
+    [986,'Interval List Intersections','M','Two pointers over sorted interval lists'],
+    [1288,'Remove Covered Intervals','M','Sort by start, then end descending'],
+    [881,'Boats to Save People','M','Sort + two pointers'],
+    [738,'Monotone Increasing Digits','M','Greedy from the right'],
+    [330,'Patching Array','H','Classic: smallest sum you cannot yet make']] },
+
+{ id: 11, name: 'Graphs', weeks: '2-3 weeks',
+  intro: 'Most graph problems reduce to a handful of traversals; the real work is spotting the graph, such as a grid, a course list or a set of equations. In C++, store the graph as vector<vector<int>> adjacency lists and keep a visited array.',
+  patterns: [
+    ['DFS on components', 'Visit everything reachable from a node (provinces, clone graph).'],
+    ['Grid as a graph', 'Neighbors are the four adjacent cells; flood fill and island counting.'],
+    ['BFS for shortest path (unweighted)', 'Queue plus distance or level; stop when you first reach the target.'],
+    ['Multi-source BFS', 'Push all starting cells at once (rotting oranges, 01 matrix).'],
+    ['Topological sort', "Kahn's algorithm with in-degrees, or DFS finishing order; a cycle means no valid order."],
+    ['Union-Find (DSU)', 'Merge components and detect a cycle when two nodes already share a root.'],
+    ['Cycle and bipartite checks', 'Two-color the graph with BFS or DFS.'],
+    ['Dijkstra', 'Weighted shortest path with a min-heap over (distance, node).'],
+    ['Minimum spanning tree', 'Kruskal with union-find, or Prim with a heap.'],
+    ['Graph from relations', 'Build edges from equations or word differences (evaluate division, word ladder).']],
+  q: [
+    [733,'Flood Fill','E','Grid DFS'],
+    [200,'Number of Islands','M','Grid DFS or BFS'],
+    [695,'Max Area of Island','M','Grid DFS'],
+    [133,'Clone Graph','M','DFS with map'],
+    [547,'Number of Provinces','M','Components'],
+    [997,'Find the Town Judge','E','In-degree and out-degree'],
+    [994,'Rotting Oranges','M','Multi-source BFS'],
+    [1091,'Shortest Path in Binary Matrix','M','BFS shortest path'],
+    [130,'Surrounded Regions','M','Border DFS'],
+    [417,'Pacific Atlantic Water Flow','M','Reverse DFS from borders'],
+    [207,'Course Schedule','M','Topological sort'],
+    [210,'Course Schedule II','M','Topological sort'],
+    [785,'Is Graph Bipartite?','M','Two-coloring'],
+    [684,'Redundant Connection','M','Union-Find'],
+    [743,'Network Delay Time','M','Dijkstra'],
+    [787,'Cheapest Flights Within K Stops','M','Bellman-Ford or BFS with limit'],
+    [1584,'Min Cost to Connect All Points','M','Minimum spanning tree'],
+    [127,'Word Ladder','H','BFS on implicit graph']],
+  cp: [
+    [463,'Island Perimeter','E','Grid traversal, count edges next to water'],
+    [542,'01 Matrix','M','Multi-source BFS'],
+    [797,'All Paths From Source to Target','M','DFS with backtracking'],
+    [1631,'Path With Minimum Effort','M','Dijkstra or binary search on the answer'],
+    [399,'Evaluate Division','M','Weighted graph from equations']] },
+
+{ id: 12, name: 'Dynamic Programming', weeks: '3-4 weeks',
+  intro: 'DP is recursion that remembers its answers; do not try to see the table first. For every problem work in four steps: define the state in words, write the recursion, add memoization, then convert to a table and shrink the space if possible.',
+  patterns: [
+    ['1D linear', 'The answer at i depends on the previous one or two (climbing stairs, house robber).'],
+    ['0/1 knapsack', 'Take or skip each item with a capacity (partition equal subset sum, target sum).'],
+    ['Unbounded knapsack', 'An item can be reused (coin change). Loop order decides combinations versus permutations.'],
+    ['Longest increasing subsequence', 'dp[i] = best ending at i; O(n log n) with binary search.'],
+    ['Grid DP', 'dp[r][c] from the cell above and the cell to the left.'],
+    ['Two-string DP', 'dp[i][j] over prefixes of both strings (LCS, edit distance, interleaving string).'],
+    ['String or substring DP', 'Expand around centers, or dp[i][j] = is the substring valid (palindromes, word break, decode ways).'],
+    ['State machine', 'A few named states per day, such as holding, sold and cooldown.'],
+    ['Interval DP', 'Split a range at every possible point (burst balloons).'],
+    ['DP on trees', 'Return two values per node, such as robbed or not robbed.']],
+  q: [
+    [70,'Climbing Stairs','E','1D linear'],
+    [746,'Min Cost Climbing Stairs','E','1D linear'],
+    [198,'House Robber','M','1D linear'],
+    [213,'House Robber II','M','1D linear, circular'],
+    [322,'Coin Change','M','Unbounded knapsack'],
+    [518,'Coin Change II','M','Unbounded knapsack, counting'],
+    [416,'Partition Equal Subset Sum','M','0/1 knapsack'],
+    [494,'Target Sum','M','0/1 knapsack'],
+    [300,'Longest Increasing Subsequence','M','LIS'],
+    [62,'Unique Paths','M','Grid DP'],
+    [64,'Minimum Path Sum','M','Grid DP'],
+    [1143,'Longest Common Subsequence','M','Two-string DP'],
+    [72,'Edit Distance','M','Two-string DP'],
+    [139,'Word Break','M','String DP'],
+    [91,'Decode Ways','M','String DP'],
+    [647,'Palindromic Substrings','M','Expand around center'],
+    [5,'Longest Palindromic Substring','M','Expand around center'],
+    [309,'Best Time to Buy and Sell Stock with Cooldown','M','State machine'],
+    [343,'Integer Break','M','1D linear, choose a split']],
+  cp: [
+    [120,'Triangle','M','Grid-style DP from the bottom up'],
+    [221,'Maximal Square','M','Classic: dp[i][j] from three neighbors'],
+    [337,'House Robber III','M','Tree DP returning two values'],
+    [97,'Interleaving String','M','Two-string DP'],
+    [312,'Burst Balloons','H','Classic interval DP']] }
+];
+
+/* ------------------------------------------------------------- HELPERS */
+const LEVEL = { E: ['Easy', 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'],
+                M: ['Medium', 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'],
+                H: ['Hard', 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'] };
+
+const slugify = t => t.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/[\s-]+/g, '-');
+const norm = t => (t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+/* --------------------------------------------------------------- STATE */
+const state = {
+  username: lsGet('dsa.username', ''),
+  solved: lsGet('dsa.solved', {}),      // { username: { normTitle: timestampSeconds } }
+  windowDays: lsGet('dsa.window', 0),   // 0 = every fetched submission
+  profile: lsGet('dsa.profile', null),
+  lastSync: lsGet('dsa.lastSync', null),
+  syncing: false,
+  error: ''
+};
+const urlCache = lsGet('dsa.urls', {});
+
+function solvedMap() { return state.solved[state.username] || {}; }
+function solvedTs(title) {
+  const ts = solvedMap()[norm(title)];
+  if (!ts) return 0;
+  if (state.windowDays > 0 && ts < Date.now() / 1000 - state.windowDays * 86400) return 0;
+  return ts;
+}
+function isSolved(q) { return solvedTs(q[1]) > 0; }
+
+function topicStats(t) {
+  const req = t.q.filter(q => q[2] !== 'H');
+  const reqDone = req.filter(isSolved).length;
+  const allDone = t.q.filter(isSolved).length;
+  const cpDone = t.cp.filter(isSolved).length;
+  const complete = !!state.username && reqDone === req.length && cpDone >= 4;
+  const total = t.q.length + t.cp.length;
+  const done = allDone + cpDone;
+  return { req: req.length, reqDone, allDone, cpDone, complete, total, done, pct: Math.round(done / total * 100) };
+}
+
+function ago(ts) {
+  const d = Math.floor((Date.now() / 1000 - ts) / 86400);
+  if (d <= 0) return 'today';
+  if (d === 1) return 'yesterday';
+  if (d < 30) return d + ' days ago';
+  return Math.floor(d / 30) + ' mo ago';
+}
+
+/* ----------------------------------------------------------------- API */
+async function syncUser(name) {
+  name = name.trim();
+  if (!name) return;
+  state.syncing = true; state.error = ''; render();
+  try {
+    const [pRes, sRes] = await Promise.all([
+      fetch(`${API}/user/${encodeURIComponent(name)}`, { headers: { accept: '*/*' } }),
+      fetch(`${API}/user/${encodeURIComponent(name)}/submissions?limit=100`, { headers: { accept: '*/*' } })
+    ]);
+    if (!pRes.ok) throw new Error(pRes.status === 404 || pRes.status === 422 ? 'User not found. Check the username.' : 'Profile request failed (' + pRes.status + ').');
+    if (!sRes.ok) throw new Error('Submissions request failed (' + sRes.status + ').');
+    const profile = await pRes.json();
+    const subs = await sRes.json();
+    if (state.username !== name) { state.username = name; }
+    const map = state.solved[name] || {};
+    (Array.isArray(subs) ? subs : []).forEach(s => {
+      if (s.statusDisplay !== 'Accepted') return;
+      const ts = parseInt(s.timestamp, 10) || 0;
+      [norm(s.title), norm((s.titleSlug || '').replace(/-/g, ' '))].forEach(k => { if (k && (!map[k] || map[k] < ts)) map[k] = ts; });
+    });
+    state.solved[name] = map;
+    state.profile = profile;
+    state.lastSync = Date.now();
+    lsSet('dsa.username', name); lsSet('dsa.solved', state.solved); lsSet('dsa.profile', profile); lsSet('dsa.lastSync', state.lastSync);
+  } catch (e) {
+    state.error = e.message && e.message !== 'Failed to fetch' ? e.message : 'Could not reach the LeetCode API. Check your connection and try again.';
+  }
+  state.syncing = false; render();
+}
+
+async function openProblem(num, title) {
+  const fallback = `https://leetcode.com/problems/${slugify(title)}/`;
+  if (urlCache[num]) { window.open(urlCache[num], '_blank', 'noopener'); return; }
+  const win = window.open('', '_blank');          // opened synchronously so popup blockers allow it
+  let url = fallback;
+  try {
+    const r = await fetch(`${API}/problem/${num}`, { headers: { accept: '*/*' } });
+    if (r.ok) { const j = await r.json(); if (j.url) { url = j.url; urlCache[num] = url; lsSet('dsa.urls', urlCache); } }
+  } catch (e) {}
+  if (win) { win.opener = null; win.location.href = url; } else { window.open(url, '_blank', 'noopener'); }
+}
+
+/* -------------------------------------------------------------- RENDER */
+state.hideSolved = lsGet('dsa.hide', false);
+
+const icons = {
+  check: '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>',
+  ext: '<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 3h7v7M10 14 21 3M21 14v7H3V3h7"/></svg>',
+  sync: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8M18.5 2v4h-4M5.5 22v-4h4"/></svg>',
+  chev: '<svg class="chev w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+  arrow: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+};
+const card = 'rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900';
+const pad2 = n => String(n).padStart(2, '0');
+const LVL = { E: ['Easy', 'text-emerald-600 dark:text-emerald-400'], M: ['Medium', 'text-amber-600 dark:text-amber-400'], H: ['Hard', 'text-rose-500 dark:text-rose-400'] };
+
+function overall() {
+  const stats = TOPICS.map(topicStats);
+  const total = stats.reduce((a, s) => a + s.total, 0), done = stats.reduce((a, s) => a + s.done, 0);
+  const firstOpen = stats.findIndex(s => !s.complete);
+  return { stats, total, done, pct: Math.round(done / total * 100), topicsDone: stats.filter(s => s.complete).length, nextTopic: firstOpen < 0 ? null : TOPICS[firstOpen] };
+}
+
+function status(done, size = 'w-5 h-5') {
+  return done
+    ? `<span class="${size} rounded-full bg-emerald-500 text-white grid place-items-center shrink-0 tick-pop">${icons.check}</span>`
+    : `<span class="${size} rounded-full border-2 border-stone-300 dark:border-zinc-700 shrink-0"></span>`;
+}
+function bar(pct, color = 'bg-orange-500') {
+  return `<div class="h-1.5 rounded-full bg-stone-200 dark:bg-zinc-800 overflow-hidden"><div class="${color} h-full rounded-full transition-all duration-500" style="width:${pct}%"></div></div>`;
+}
+function ring(pct, size, stroke, inner) {
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  return `<div class="relative shrink-0" style="width:${size}px;height:${size}px">
+    <svg width="${size}" height="${size}" class="-rotate-90"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke-width="${stroke}" class="stroke-stone-200 dark:stroke-zinc-800"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke-width="${stroke}" stroke-linecap="round" class="stroke-orange-500 transition-all duration-700" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct / 100)}"/></svg>
+    <div class="absolute inset-0 grid place-items-center text-center">${inner}</div></div>`;
+}
+
+function renderNav(route) {
+  const items = [['intro', 'Intro'], ['topics', 'Topics'], ['next', 'Next prep']];
+  const html = items.map(([k, label]) => {
+    const active = route === k || (k === 'topics' && route === 'topic');
+    return `<a href="#/${k}" class="px-3 py-1.5 rounded-lg whitespace-nowrap font-medium ${active ? 'bg-stone-900 text-white dark:bg-zinc-100 dark:text-zinc-900' : 'text-stone-600 dark:text-zinc-400 hover:bg-stone-100 dark:hover:bg-zinc-900'}">${label}</a>`;
+  }).join('');
+  document.getElementById('nav').innerHTML = html;
+  document.getElementById('navMobile').innerHTML = html;
+  const o = overall();
+  const ov = document.getElementById('overall');
+  ov.innerHTML = `<span class="font-mono">${o.done}/${o.total}</span><span class="w-24">${bar(o.pct)}</span>`;
+  const chip = document.getElementById('userChip');
+  if (state.username) {
+    const av = state.profile && state.profile.profile && state.profile.profile.userAvatar;
+    chip.classList.remove('hidden');
+    chip.innerHTML = `${av ? `<img src="${esc(av)}" class="w-7 h-7 rounded-full ring-1 ring-stone-200 dark:ring-zinc-700" alt="">` : ''}<span class="font-medium">${esc(state.username)}</span>`;
+  } else chip.classList.add('hidden');
+}
+
+function userForm() {
+  return `<form id="userForm" class="flex flex-col sm:flex-row gap-2 max-w-md">
+    <input id="userInput" value="${esc(state.username)}" placeholder="LeetCode username" autocomplete="off" spellcheck="false"
+      class="flex-1 rounded-xl border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-2.5 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-stone-400">
+    <button class="rounded-xl bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60" ${state.syncing ? 'disabled' : ''}>
+      <span class="${state.syncing ? 'spin' : ''}">${icons.sync}</span>${state.syncing ? 'Syncing' : (state.username ? 'Sync' : 'Connect')}
+    </button>
+  </form>
+  ${state.error ? `<p class="mt-2 text-sm text-rose-600 dark:text-rose-400">${esc(state.error)}</p>` : ''}`;
+}
+
+function profileBlock() {
+  if (!state.profile) return '';
+  const p = state.profile, pr = p.profile || {};
+  const ac = (p.submitStats && p.submitStats.acSubmissionNum) || [];
+  const get = d => (ac.find(x => x.difficulty === d) || {}).count || 0;
+  const stat = (n, l, c) => `<div><div class="text-lg font-bold ${c}">${n}</div><div class="text-[11px] uppercase tracking-wide text-stone-500">${l}</div></div>`;
+  return `<div class="mt-5 pt-5 border-t border-stone-200 dark:border-zinc-800">
+    <div class="flex items-center gap-3">
+      ${pr.userAvatar ? `<img src="${esc(pr.userAvatar)}" class="w-10 h-10 rounded-full" alt="">` : ''}
+      <div class="min-w-0"><div class="font-semibold truncate">${esc(pr.realName || p.username)}</div>
+      <div class="text-xs text-stone-500">@${esc(p.username)} · rank ${(pr.ranking || 0).toLocaleString()}${state.lastSync ? ' · synced ' + new Date(state.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div></div>
+    </div>
+    <div class="mt-4 grid grid-cols-4 gap-2 text-center">${stat(get('All'), 'Total', '')}${stat(get('Easy'), 'Easy', 'text-emerald-600 dark:text-emerald-400')}${stat(get('Medium'), 'Medium', 'text-amber-600 dark:text-amber-400')}${stat(get('Hard'), 'Hard', 'text-rose-500 dark:text-rose-400')}</div></div>`;
+}
+
+/* ------------------------------------------------------------- PAGES */
+function pageIntro() {
+  const o = overall();
+  const steps = [
+    ['Connect', 'Enter your LeetCode username. Your profile and 100 latest submissions are read.'],
+    ['Pick a topic', 'Each topic has questions in order, the patterns to learn, and a 5-problem checkpoint.'],
+    ['Solve in C++', 'Click Solve to open the real LeetCode problem in a new tab.'],
+    ['Sync', 'Come back and press Sync. A question ticks only if you have an Accepted submission. No manual ticking.'],
+    ['Finish the topic', 'All non-Hard questions solved plus 4 of 5 checkpoint problems earns the topic tick.']];
+  const rules = [
+    'Do 1 to 2 problems a day. A small target you hit beats a big one you drop.',
+    'Stuck for 20 minutes? Read the hint, understand it, close it, code it again from scratch. Re-solve it tomorrow.',
+    'Hard problems are optional on the first pass. Come back after topic 12.',
+    'Only your latest 100 submissions are visible to the API, so sync often. Solves already seen stay ticked here.'];
+  return `<div class="fade-in">
+  <section class="grid lg:grid-cols-5 gap-6 items-stretch">
+    <div class="lg:col-span-3 ${card} p-7 sm:p-9 flex flex-col justify-center">
+      <div class="font-mono text-xs uppercase tracking-widest text-orange-600 dark:text-orange-400">Pattern-first DSA</div>
+      <h1 class="mt-3 text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1.05]">Stop watching playlists.<br>Start solving.</h1>
+      <p class="mt-4 text-stone-600 dark:text-zinc-400 max-w-xl">Twelve topics in learning order. One topic at a time, with the patterns to recognise, curated LeetCode questions, and a mixed checkpoint before you move on.</p>
+      <div class="mt-6">${userForm()}</div>
+    </div>
+    <div class="lg:col-span-2 ${card} p-7 flex flex-col">
+      <div class="flex items-center gap-5">
+        ${ring(o.pct, 112, 10, `<div><div class="text-2xl font-bold">${o.pct}%</div></div>`)}
+        <div>
+          <div class="text-sm text-stone-500">Overall progress</div>
+          <div class="text-xl font-bold"><span class="font-mono">${o.done}</span><span class="text-stone-400 font-normal"> / ${o.total}</span></div>
+          <div class="text-sm text-stone-500 mt-0.5">${o.topicsDone} of ${TOPICS.length} topics complete</div>
+        </div>
+      </div>
+      ${o.nextTopic ? `<a href="#/topic/${o.nextTopic.id}" class="mt-5 inline-flex items-center justify-between gap-3 rounded-xl bg-stone-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-3 font-medium hover:opacity-90">
+        <span><span class="block text-xs opacity-70 font-normal">${state.username ? 'Continue with' : 'Start with'}</span>${pad2(o.nextTopic.id)} · ${o.nextTopic.name}</span>${icons.arrow}</a>` : `<a href="#/next" class="mt-5 inline-flex items-center justify-between rounded-xl bg-emerald-500 text-white px-4 py-3 font-medium">All topics done. What next? ${icons.arrow}</a>`}
+      ${profileBlock()}
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="text-sm font-semibold uppercase tracking-widest text-stone-500">How it works</h2>
+    <ol class="mt-4 grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      ${steps.map((s, i) => `<li class="${card} p-4"><div class="font-mono text-xs text-orange-600 dark:text-orange-400">${pad2(i + 1)}</div><div class="mt-1 font-semibold">${s[0]}</div><div class="mt-1 text-sm text-stone-600 dark:text-zinc-400">${s[1]}</div></li>`).join('')}
+    </ol>
+  </section>
+
+  <section class="mt-8 grid md:grid-cols-5 gap-6">
+    <div class="md:col-span-3 ${card} p-6">
+      <h2 class="font-semibold">Ground rules</h2>
+      <ul class="mt-3 space-y-2.5 text-sm text-stone-600 dark:text-zinc-400">${rules.map(r => `<li class="flex gap-2.5"><span class="mt-0.5 text-emerald-500">${icons.check}</span><span>${r}</span></li>`).join('')}</ul>
+    </div>
+    <div class="md:col-span-2 ${card} p-6">
+      <h2 class="font-semibold">Count solves from</h2>
+      <p class="text-sm text-stone-500 mt-1">Only accepted submissions inside this window earn a tick.</p>
+      <select id="winSel" class="mt-3 w-full rounded-xl border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2.5">
+        ${[[7, 'Last 7 days'], [30, 'Last 30 days'], [90, 'Last 90 days'], [0, 'All fetched submissions']].map(o => `<option value="${o[0]}" ${state.windowDays === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}
+      </select>
+      <button id="resetBtn" class="mt-4 text-sm text-rose-600 dark:text-rose-400 hover:underline">Reset saved progress</button>
+    </div>
+  </section></div>`;
+}
+
+function pageTopics() {
+  const o = overall();
+  return `<div class="fade-in">
+  <div class="flex items-end justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold tracking-tight">Topics</h1>
+      <p class="mt-1 text-stone-500">${o.topicsDone} of ${TOPICS.length} complete · <span class="font-mono">${o.done}/${o.total}</span> problems solved</p>
+    </div>
+    <div class="flex items-center gap-4 text-xs text-stone-500">
+      <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>question</span>
+      <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>checkpoint</span>
+    </div>
+  </div>
+  ${!state.username ? `<a href="#/intro" class="mt-5 block rounded-xl border border-orange-300 dark:border-orange-500/40 bg-orange-50 dark:bg-orange-500/10 text-orange-800 dark:text-orange-200 px-4 py-3 text-sm">Add your LeetCode username on the intro page to start ticking problems off. &rarr;</a>` : ''}
+  <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    ${TOPICS.map((t, i) => {
+      const s = o.stats[i], isNext = o.nextTopic && o.nextTopic.id === t.id;
+      const dots = t.q.map(q => `<span class="w-2.5 h-2.5 rounded-sm ${isSolved(q) ? 'bg-emerald-500' : 'bg-stone-200 dark:bg-zinc-700'}"></span>`).join('')
+                 + `<span class="w-1.5"></span>`
+                 + t.cp.map(q => `<span class="w-2.5 h-2.5 rounded-full ${isSolved(q) ? 'bg-emerald-500' : 'bg-stone-200 dark:bg-zinc-700'}"></span>`).join('');
+      return `<a href="#/topic/${t.id}" class="group ${card} p-5 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-stone-200/60 dark:hover:shadow-none ${s.complete ? 'border-emerald-400 dark:border-emerald-500/60' : isNext ? 'border-orange-400 dark:border-orange-500/60' : 'hover:border-stone-300 dark:hover:border-zinc-600'}">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-3xl font-semibold ${s.complete ? 'text-emerald-500' : 'text-stone-300 dark:text-zinc-700'}">${pad2(t.id)}</span>
+          ${s.complete ? status(true, 'w-7 h-7') : isNext ? '<span class="text-[11px] font-semibold uppercase tracking-wide rounded-full bg-orange-500 text-white px-2.5 py-1">Up next</span>' : `<span class="font-mono text-xs text-stone-400">${s.pct}%</span>`}
+        </div>
+        <div class="mt-3 font-semibold text-lg leading-snug">${t.name}</div>
+        <div class="text-sm text-stone-500">${t.q.length} questions + 5 checkpoint · ${t.weeks}</div>
+        <div class="mt-4 flex flex-wrap items-center gap-1">${dots}</div>
+        <div class="mt-4 flex items-center justify-between text-sm"><span class="font-mono text-stone-500">${s.done}/${s.total}</span><span class="inline-flex items-center gap-1 font-medium text-stone-400 group-hover:text-orange-500">Open ${icons.arrow}</span></div>
+      </a>`; }).join('')}
+  </div></div>`;
+}
+
+function questionRow(q, nextKey, key) {
+  const ts = solvedTs(q[1]);
+  const [lvl, lvlCls] = LVL[q[2]];
+  const isNextUp = key === nextKey;
+  return `<li class="group flex items-center gap-3 sm:gap-4 pl-3 pr-4 py-3 border-l-2 ${isNextUp ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-500/5' : 'border-transparent hover:bg-stone-50 dark:hover:bg-zinc-800/40'}">
+    ${status(!!ts)}
+    <span class="w-12 shrink-0 font-mono text-xs text-stone-400">#${q[0]}</span>
+    <div class="min-w-0 flex-1">
+      <a href="https://leetcode.com/problems/${slugify(q[1])}/" data-num="${q[0]}" data-title="${esc(q[1])}" class="qlink block truncate font-medium hover:text-orange-600 dark:hover:text-orange-400 ${ts ? 'text-stone-500 dark:text-zinc-400' : ''}">${esc(q[1])}</a>
+      <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+        <span class="rounded bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-zinc-400 px-1.5 py-0.5">${esc(q[3])}</span>
+        ${isNextUp ? '<span class="font-semibold text-orange-600 dark:text-orange-400">Up next</span>' : ''}
+        ${ts ? `<span class="text-emerald-600 dark:text-emerald-400">Solved ${ago(ts)}</span>` : ''}
+      </div>
+    </div>
+    <span class="hidden sm:block w-16 text-right text-xs font-semibold ${lvlCls}">${lvl}${q[2] === 'H' ? '*' : ''}</span>
+    <a href="https://leetcode.com/problems/${slugify(q[1])}/" data-num="${q[0]}" data-title="${esc(q[1])}" class="qlink shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold ${ts ? 'border border-stone-200 dark:border-zinc-700 text-stone-600 dark:text-zinc-400 hover:bg-stone-100 dark:hover:bg-zinc-800' : 'bg-stone-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-85'}">${ts ? 'Review' : 'Solve'} ${icons.ext}</a>
+  </li>`;
+}
+
+function patternsHtml(t) {
+  return t.patterns.map(p => `<li class="py-2.5"><div class="text-sm font-semibold">${esc(p[0])}</div><div class="text-sm text-stone-500 dark:text-zinc-400 mt-0.5">${esc(p[1])}</div></li>`).join('');
+}
+
+function pageTopic(id) {
+  const idx = TOPICS.findIndex(t => t.id === id);
+  if (idx < 0) return pageTopics();
+  const t = TOPICS[idx], s = topicStats(t);
+  const prev = TOPICS[idx - 1], next = TOPICS[idx + 1];
+  const o = overall();
+
+  // first unsolved required question is "up next"
+  let nextKey = null;
+  if (state.username) {
+    const iq = t.q.findIndex(q => q[2] !== 'H' && !isSolved(q));
+    if (iq >= 0) nextKey = 'q' + iq;
+    else { const ic = t.cp.findIndex(q => !isSolved(q)); if (ic >= 0 && s.cpDone < 4) nextKey = 'c' + ic; }
+  }
+  const rows = (list, pre) => {
+    const items = list.map((q, i) => ({ q, i })).filter(x => !(state.hideSolved && isSolved(x.q)));
+    return items.length ? items.map(x => questionRow(x.q, nextKey, pre + x.i)).join('') : '<li class="px-4 py-6 text-center text-sm text-stone-500">Everything here is solved.</li>';
+  };
+
+  return `<div class="fade-in grid lg:grid-cols-[230px_minmax(0,1fr)] xl:grid-cols-[230px_minmax(0,1fr)_300px] gap-8">
+  <aside class="hidden lg:block">
+    <div class="sticky top-20">
+      <div class="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-2 px-2">Topics</div>
+      <nav class="space-y-0.5">
+        ${TOPICS.map((x, i) => { const sx = o.stats[i], active = x.id === t.id; return `<a href="#/topic/${x.id}" class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm ${active ? 'bg-stone-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-medium' : 'text-stone-600 dark:text-zinc-400 hover:bg-stone-100 dark:hover:bg-zinc-900'}">
+          <span class="font-mono text-xs w-5 ${active ? 'opacity-70' : 'text-stone-400'}">${pad2(x.id)}</span>
+          <span class="flex-1 truncate">${x.name}</span>
+          ${sx.complete ? `<span class="text-emerald-500">${icons.check}</span>` : `<span class="font-mono text-[10px] ${active ? 'opacity-70' : 'text-stone-400'}">${sx.pct}%</span>`}</a>`; }).join('')}
+      </nav>
+    </div>
+  </aside>
+
+  <section class="min-w-0">
+    <a href="#/topics" class="lg:hidden text-sm text-stone-500 hover:text-orange-500">&larr; All topics</a>
+    <div class="font-mono text-xs uppercase tracking-widest text-orange-600 dark:text-orange-400 mt-2 lg:mt-0">Topic ${pad2(t.id)} · ${t.weeks}</div>
+    <h1 class="mt-1 text-3xl font-extrabold tracking-tight flex items-center gap-3">${t.name}${s.complete ? status(true, 'w-8 h-8') : ''}</h1>
+    <p class="mt-2 text-stone-600 dark:text-zinc-400 max-w-2xl">${esc(t.intro)}</p>
+
+    ${s.complete ? `<div class="mt-5 rounded-xl border border-emerald-300 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200 flex items-center justify-between gap-3 flex-wrap">
+      <span class="font-medium">Topic complete. Nice work.</span>
+      ${next ? `<a href="#/topic/${next.id}" class="font-semibold inline-flex items-center gap-1.5">Next: ${esc(next.name)} ${icons.arrow}</a>` : `<a href="#/next" class="font-semibold inline-flex items-center gap-1.5">Next preparation ${icons.arrow}</a>`}</div>` : ''}
+
+    <div class="mt-5 grid grid-cols-2 gap-3">
+      <div class="${card} p-4"><div class="flex justify-between text-sm"><span class="font-medium">Questions</span><span class="font-mono text-stone-500">${s.reqDone}/${s.req}</span></div><div class="mt-2.5">${bar(Math.round(s.reqDone / s.req * 100))}</div></div>
+      <div class="${card} p-4"><div class="flex justify-between text-sm"><span class="font-medium">Checkpoint <span class="text-stone-400 font-normal">need 4</span></span><span class="font-mono text-stone-500">${s.cpDone}/5</span></div><div class="mt-2.5">${bar(Math.round(s.cpDone / 5 * 100), 'bg-violet-500')}</div></div>
+    </div>
+
+    ${!state.username ? `<a href="#/intro" class="mt-4 block rounded-xl border border-orange-300 dark:border-orange-500/40 bg-orange-50 dark:bg-orange-500/10 text-orange-800 dark:text-orange-200 px-4 py-3 text-sm">Add your LeetCode username on the intro page to enable ticks. &rarr;</a>` : ''}
+
+    <details class="xl:hidden mt-5 ${card}">
+      <summary class="flex items-center justify-between px-4 py-3 cursor-pointer font-semibold">Patterns to learn <span class="text-stone-400">${icons.chev}</span></summary>
+      <ul class="px-4 pb-3 divide-y divide-stone-100 dark:divide-zinc-800">${patternsHtml(t)}</ul>
+    </details>
+
+    <div class="mt-8 flex items-center justify-between gap-3 flex-wrap">
+      <h2 class="text-lg font-bold">Questions <span class="text-stone-400 font-normal text-sm ml-1">solve in this order</span></h2>
+      <div class="flex items-center gap-2">
+        <button class="hideBtn text-sm rounded-lg border border-stone-200 dark:border-zinc-800 px-3 py-1.5 hover:bg-stone-100 dark:hover:bg-zinc-900 ${state.hideSolved ? 'bg-stone-100 dark:bg-zinc-900' : ''}">${state.hideSolved ? 'Show solved' : 'Hide solved'}</button>
+        <button class="syncBtn text-sm inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-zinc-800 px-3 py-1.5 hover:bg-stone-100 dark:hover:bg-zinc-900 ${state.username ? '' : 'hidden'}"><span class="${state.syncing ? 'spin' : ''}">${icons.sync}</span>${state.syncing ? 'Syncing' : 'Sync'}</button>
+      </div>
+    </div>
+    <ul class="mt-3 ${card} divide-y divide-stone-100 dark:divide-zinc-800 overflow-hidden">${rows(t.q, 'q')}</ul>
+    <p class="mt-2 text-xs text-stone-400">* Hard questions are optional for finishing the topic.</p>
+
+    <div class="mt-9">
+      <h2 class="text-lg font-bold">Checkpoint <span class="text-stone-400 font-normal text-sm ml-1">5 mixed problems, patterns plus classics</span></h2>
+      <p class="mt-1 text-sm text-stone-500">Cap each at 45 minutes. Solve 4 of 5 to finish the topic.</p>
+    </div>
+    <ul class="mt-3 ${card} divide-y divide-stone-100 dark:divide-zinc-800 overflow-hidden">${rows(t.cp, 'c')}</ul>
+
+    <div class="mt-10 flex justify-between gap-3">
+      ${prev ? `<a href="#/topic/${prev.id}" class="rounded-xl border border-stone-200 dark:border-zinc-800 px-4 py-2.5 text-sm font-medium hover:bg-stone-100 dark:hover:bg-zinc-900">&larr; ${esc(prev.name)}</a>` : '<span></span>'}
+      ${next ? `<a href="#/topic/${next.id}" class="rounded-xl bg-stone-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 hover:opacity-90">${esc(next.name)} ${icons.arrow}</a>`
+             : `<a href="#/next" class="rounded-xl bg-orange-500 text-white px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 hover:bg-orange-600">Next preparation ${icons.arrow}</a>`}
+    </div>
+  </section>
+
+  <aside class="hidden xl:block">
+    <div class="sticky top-20 ${card} p-5">
+      <h2 class="font-bold">Patterns to learn</h2>
+      <p class="text-xs text-stone-500 mt-0.5">Name the pattern before you code.</p>
+      <ul class="mt-2 divide-y divide-stone-100 dark:divide-zinc-800 max-h-[calc(100vh-11rem)] overflow-y-auto pr-1">${patternsHtml(t)}</ul>
+    </div>
+  </aside>
+  </div>`;
+}
+
+function pageNext() {
+  const o = overall();
+  const steps = [
+    ['Redo the skipped Hards', 'Return to every Hard problem marked optional. Start with topics 3, 4 and 8.'],
+    ['Random Mediums, no label', 'Solve 3 to 5 random Mediums a week and name the pattern before writing code. Spotting the pattern is the real interview skill.'],
+    ['Re-solve from memory', 'Pick 10 problems you needed hints for and solve them again cold, in C++, with a timer.'],
+    ['Weekly timed set', 'Once a week do 2 Mediums in 60 minutes, no hints. Review every miss.'],
+    ['Weekly contests', 'Join a LeetCode contest. Aim to solve the first two problems in time, then grow from there.'],
+    ['Add depth topics', 'Tries, segment trees and Fenwick trees, bit manipulation, advanced graphs (Bellman-Ford, Floyd-Warshall, SCC).']];
+  return `<div class="fade-in max-w-3xl">
+  <div class="font-mono text-xs uppercase tracking-widest text-orange-600 dark:text-orange-400">After the 12 topics</div>
+  <h1 class="mt-1 text-3xl font-extrabold tracking-tight">Next preparation</h1>
+  <p class="mt-2 text-stone-600 dark:text-zinc-400">${o.topicsDone === TOPICS.length ? 'All 12 topics are complete. Here is how to turn that into interview speed.' : `${o.topicsDone} of ${TOPICS.length} topics complete. Finish them first, then follow this plan.`}</p>
+  <ol class="mt-6 relative border-l-2 border-stone-200 dark:border-zinc-800 ml-3 space-y-5">
+    ${steps.map((s, i) => `<li class="pl-6 relative"><span class="absolute -left-[15px] top-0 w-7 h-7 rounded-full bg-orange-500 text-white font-mono text-xs font-semibold grid place-items-center">${i + 1}</span>
+      <div class="${card} p-4"><div class="font-semibold">${s[0]}</div><div class="mt-1 text-sm text-stone-600 dark:text-zinc-400">${s[1]}</div></div></li>`).join('')}
+  </ol>
+  <a href="#/topics" class="mt-6 inline-block text-sm text-orange-600 dark:text-orange-400 hover:underline">&larr; Back to topics</a></div>`;
+}
+
+/* -------------------------------------------------------------- ROUTER */
+function parseRoute() {
+  const m = (location.hash || '#/intro').replace(/^#\/?/, '').split('/');
+  return { name: m[0] || 'intro', id: parseInt(m[1], 10) };
+}
+
+function render() {
+  const r = parseRoute();
+  renderNav(r.name);
+  const app = document.getElementById('app');
+  app.innerHTML = r.name === 'topics' ? pageTopics()
+                : r.name === 'topic' ? pageTopic(r.id)
+                : r.name === 'next' ? pageNext()
+                : pageIntro();
+  bind();
+}
+
+function bind() {
+  const form = document.getElementById('userForm');
+  if (form) form.addEventListener('submit', e => { e.preventDefault(); syncUser(document.getElementById('userInput').value); });
+  document.querySelectorAll('.syncBtn').forEach(b => b.addEventListener('click', () => syncUser(state.username)));
+  document.querySelectorAll('.hideBtn').forEach(b => b.addEventListener('click', () => { state.hideSolved = !state.hideSolved; lsSet('dsa.hide', state.hideSolved); render(); }));
+  document.querySelectorAll('.qlink').forEach(a => a.addEventListener('click', e => { e.preventDefault(); openProblem(a.dataset.num, a.dataset.title); }));
+  const win = document.getElementById('winSel');
+  if (win) win.addEventListener('change', () => { state.windowDays = parseInt(win.value, 10); lsSet('dsa.window', state.windowDays); render(); });
+  const reset = document.getElementById('resetBtn');
+  if (reset) reset.addEventListener('click', () => {
+    if (!state.username || !confirm('Clear saved progress for ' + state.username + '? You can re-sync recent submissions afterwards.')) return;
+    delete state.solved[state.username]; lsSet('dsa.solved', state.solved); render();
+  });
+}
+
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const dark = document.documentElement.classList.toggle('dark');
+  try { localStorage.setItem('dsa.theme', dark ? 'dark' : 'light'); } catch (e) {}
+});
+window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+render();
+if (state.username && (!state.lastSync || Date.now() - state.lastSync > 10 * 60 * 1000)) syncUser(state.username);
+</script>
+</body>
+</html>
