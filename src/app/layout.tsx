@@ -20,14 +20,13 @@ export const metadata: Metadata = {
     'Learn Data Structures & Algorithms through core algorithmic patterns, deep intuitions, step-by-step walkthroughs, and verified live LeetCode sync.',
   icons: {
     icon: [
-      { url: '/images/logo.png', type: 'image/png' },
-      { url: '/images/logo.png', sizes: '32x32', type: 'image/png' },
-      { url: '/images/logo.png', sizes: '192x192', type: 'image/png' },
+      { url: '/images/logo.png?v=2', type: 'image/png' },
+      { url: '/favicon.ico?v=2' },
     ],
     apple: [
-      { url: '/images/logo.png', sizes: '180x180', type: 'image/png' },
+      { url: '/images/logo.png?v=2', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/images/logo.png',
+    shortcut: '/images/logo.png?v=2',
   },
   openGraph: {
     title: 'DSA Patterns | Master DSA Without Watching 500 Videos',
