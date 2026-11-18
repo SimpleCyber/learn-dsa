@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User progress documents partitioned directly by userId
+    match /users/{userId} {
+      // Allow read access to fetch user roadmap progress and profile
+      allow read: if true;
+
+      // Allow write access partitioned strictly by the user ID
+      // Ensures the payload userId matches the document path ID
+      allow create, update: if request.resource.data.userId == userId;
+
+      // Disallow client deletion
+      allow delete: if false;
+
+      // Optional: If Firebase Auth is configured later, you can enforce:
+      // allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

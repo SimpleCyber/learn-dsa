@@ -3,7 +3,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { TOPICS, Topic } from '@/data/topics';
 import { norm } from '@/lib/utils';
-import { fetchUserProfile, fetchUserSubmissions, LeetCodeProfileResponse } from '@/api';
+import {
+  fetchUserProfile,
+  fetchUserSubmissions,
+  LeetCodeProfileResponse,
+  saveUserProgress,
+  getUserProgress
+} from '@/api';
 
 export type LeetCodeProfile = LeetCodeProfileResponse;
 
@@ -58,7 +64,23 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
       const savedSolved = localStorage.getItem('dsa.solved');
       const savedHide = localStorage.getItem('dsa.hide');
 
-      if (savedUser) setUsername(JSON.parse(savedUser));
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        setUsername(u);
+        // Sync with Firestore in background
+        getUserProgress(u).then(cloudData => {
+          if (cloudData) {
+            if (cloudData.profile) setProfile(cloudData.profile);
+            if (cloudData.solved) {
+              setSolved(prev => {
+                const next = { ...prev, [u]: { ...(prev[u] || {}), ...cloudData.solved } };
+                localStorage.setItem('dsa.solved', JSON.stringify(next));
+                return next;
+              });
+            }
+          }
+        }).catch(() => {});
+      }
       if (savedProfile) setProfile(JSON.parse(savedProfile));
       if (savedSolved) setSolved(JSON.parse(savedSolved));
       if (savedHide) setHideSolved(JSON.parse(savedHide));
@@ -143,18 +165,31 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      // 3. Fetch any existing cloud progress from Firestore
+      const cloudData = await getUserProgress(clean);
+      const cloudSolved = cloudData?.solved || {};
+      const combinedMap = { ...cloudSolved, ...map };
+
       // Update state & LocalStorage
       setUsername(clean);
       setProfile(profData);
       setSolved(prev => {
-        const next = { ...prev, [clean]: { ...(prev[clean] || {}), ...map } };
+        const next = { ...prev, [clean]: { ...(prev[clean] || {}), ...combinedMap } };
         localStorage.setItem('dsa.solved', JSON.stringify(next));
         return next;
       });
 
+      const syncTs = Date.now();
       localStorage.setItem('dsa.user', JSON.stringify(clean));
       localStorage.setItem('dsa.profile', JSON.stringify(profData));
-      localStorage.setItem('dsa.lastSync', JSON.stringify(Date.now()));
+      localStorage.setItem('dsa.lastSync', JSON.stringify(syncTs));
+
+      // 4. Save directly to Firestore partitioned by user ID
+      await saveUserProgress(clean, {
+        profile: profData,
+        solved: combinedMap,
+        lastSync: syncTs
+      });
 
       setSyncing(false);
       return true;
