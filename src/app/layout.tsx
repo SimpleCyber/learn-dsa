@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description:
     'Learn Data Structures & Algorithms through core algorithmic patterns, deep intuitions, step-by-step walkthroughs, and verified live LeetCode sync.',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/images/logo.png',
   },
 };
 

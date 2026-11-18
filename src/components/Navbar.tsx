@@ -38,11 +38,13 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
         <div className="flex items-center gap-3 shrink-0">
           <Link
             href="/"
-            className="flex items-center gap-2 group transition-transform active:scale-95"
+            className="flex items-center gap-2.5 group transition-transform active:scale-95"
           >
-            <span className="w-7 h-7 rounded-lg bg-orange-500 text-white font-bold text-xs grid place-items-center shadow-xs group-hover:bg-orange-600 transition-colors">
-              ⚡
-            </span>
+            <img
+              src="/images/logo.png"
+              alt="DSA Logo"
+              className="w-7 h-7 rounded-lg object-contain shrink-0 shadow-xs"
+            />
             <span className="font-bold text-base tracking-tight text-stone-900 dark:text-white">
               DSA
             </span>

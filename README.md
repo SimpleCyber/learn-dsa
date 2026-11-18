@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/images/logo.png" alt="DSA Patterns Logo" width="80" />
+</p>
+
 # DSA Patterns
 
 Learn Data Structures & Algorithms through **patterns**, not by memorizing hundreds of solutions.
