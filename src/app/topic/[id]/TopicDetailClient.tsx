@@ -64,19 +64,19 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-7xl mx-auto w-full min-w-0 animate-in fade-in duration-300">
       {/* Topic Header Banner: Expandable & Collapsible (Collapsed by default) */}
-      <div className="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3.5 sm:p-4 transition-all">
+      <div className="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3.5 sm:p-4 transition-all w-full min-w-0">
         <button
           onClick={() => setBannerExpanded(p => !p)}
-          className="w-full flex items-center justify-between gap-2.5 sm:gap-3 text-left cursor-pointer group"
+          className="w-full flex items-center justify-between gap-2.5 sm:gap-3 text-left cursor-pointer group min-w-0"
           title="Click to expand/collapse topic strategy"
         >
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
             <span className="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-950 text-orange-600 dark:text-orange-400 font-mono text-xs font-bold grid place-items-center shrink-0">
               {pad2(topic.id)}
             </span>
-            <div className="min-w-0 flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <h1 className="text-sm sm:text-lg font-bold text-stone-900 dark:text-white flex items-center gap-1.5 truncate">
                 <span className="truncate">Topic {pad2(topic.id)}: {topic.name}</span>
                 {stats.complete && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />}
@@ -87,7 +87,7 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-2">
             <span className="px-2.5 sm:px-3 py-1 rounded-xl bg-stone-100 dark:bg-zinc-800 text-[11px] sm:text-xs font-mono font-bold text-stone-800 dark:text-zinc-200">
               <span className="sm:hidden">{stats.done}/{stats.total}</span>
               <span className="hidden sm:inline">{stats.done} / {stats.total} Solved ({stats.pct}%)</span>
@@ -105,7 +105,7 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
         {/* Collapsible Content */}
         {bannerExpanded && (
           <div className="mt-3.5 pt-3 border-t border-stone-100 dark:border-zinc-800 animate-in fade-in">
-            <p className="text-xs sm:text-sm text-stone-600 dark:text-zinc-300 leading-relaxed max-w-3xl font-sans">
+            <p className="text-xs sm:text-sm text-stone-600 dark:text-zinc-300 leading-relaxed max-w-3xl font-sans break-words">
               {topic.intro}
             </p>
             <div className="mt-2 text-[11px] font-mono text-stone-400">
@@ -116,9 +116,9 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
       </div>
 
       {/* Main Grid: Patterns Sidebar (Left) + Questions Content (Right) */}
-      <div className="grid lg:grid-cols-12 gap-6 items-start">
+      <div className="grid lg:grid-cols-12 gap-6 items-start w-full min-w-0">
         {/* LEFT SIDE: Pattern Options List */}
-        <aside className="lg:col-span-4 rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 sm:p-5 space-y-3 lg:sticky lg:top-20">
+        <aside className="lg:col-span-4 rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 sm:p-5 space-y-3 lg:sticky lg:top-20 w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
             <h2 className="font-bold text-sm text-stone-900 dark:text-zinc-100 flex items-center gap-1.5">
               <Lightbulb className="w-4 h-4 text-orange-500" />
@@ -132,21 +132,21 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
             Click any pattern to view its logic, walkthrough, C++ template, and visualizer:
           </p>
 
-          <div className="space-y-1.5 max-h-72 lg:max-h-[calc(100vh-16rem)] overflow-y-auto no-scrollbar">
+          <div className="space-y-1.5 max-h-72 lg:max-h-[calc(100vh-16rem)] overflow-y-auto no-scrollbar w-full min-w-0">
             {topic.patterns.map((p, idx) => (
               <button
                 key={idx}
                 onClick={() => setActivePatternIdx(idx)}
-                className="w-full text-left p-2.5 sm:p-3 rounded-xl border border-stone-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900 hover:bg-orange-50/40 dark:hover:bg-zinc-800/80 transition-all flex items-start gap-2.5 group cursor-pointer"
+                className="w-full text-left p-2.5 sm:p-3 rounded-xl border border-stone-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900 hover:bg-orange-50/40 dark:hover:bg-zinc-800/80 transition-all flex items-start gap-2.5 group cursor-pointer min-w-0"
               >
                 <span className="w-5 h-5 rounded-md bg-stone-100 dark:bg-zinc-800 group-hover:bg-orange-100 dark:group-hover:bg-orange-950 text-stone-600 dark:text-zinc-400 group-hover:text-orange-700 dark:group-hover:text-orange-300 font-mono text-[11px] font-bold grid place-items-center shrink-0 mt-0.5">
                   {idx + 1}
                 </span>
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-xs text-stone-800 dark:text-zinc-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-snug">
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <div className="font-semibold text-xs text-stone-800 dark:text-zinc-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-snug break-words">
                     {p[0]}
                   </div>
-                  <div className="text-[11px] text-stone-400 dark:text-zinc-400 truncate mt-0.5">
+                  <div className="text-[11px] text-stone-400 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-snug break-words">
                     {p[1]}
                   </div>
                 </div>
@@ -156,9 +156,9 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
         </aside>
 
         {/* RIGHT SIDE: Curated Questions and Checkpoints */}
-        <main className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-6 w-full min-w-0">
           {/* Filter Toolbar */}
-          <div className="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 sm:p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 text-xs">
+          <div className="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 sm:p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 text-xs w-full min-w-0">
             {/* Search */}
             <div className="relative w-full sm:w-60">
               <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-2.5" />
@@ -369,7 +369,7 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
               })}
             </ul>
           </div>
-        </main>
+        </div>
       </div>
 
       {/* Bottom Navigation: Topic Grid & Prev/Next Topic (No Footer!) */}

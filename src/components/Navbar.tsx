@@ -33,7 +33,7 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-stone-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-4 w-full min-w-0">
         {/* Brand */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
