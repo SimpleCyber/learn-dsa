@@ -20,25 +20,25 @@ export function ProblemModal({ problem, onClose }: ProblemModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-2xl p-6 space-y-4"
+        className="w-full max-w-md rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 shadow-2xl p-4 sm:p-6 space-y-3.5 sm:space-y-4"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0 flex-1">
             <span className="font-mono text-xs text-orange-500 font-bold">
               LeetCode #{problem.num}
             </span>
-            <h3 className="text-lg font-bold text-stone-900 dark:text-zinc-100 mt-0.5">
+            <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-zinc-100 mt-0.5 break-words">
               {problem.title}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200 p-1 rounded-lg"
+            className="text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200 p-1 rounded-lg shrink-0"
           >
             <CloseIcon className="w-4 h-4" />
           </button>

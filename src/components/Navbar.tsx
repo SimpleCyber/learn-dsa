@@ -71,7 +71,7 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0" ref={containerRef}>
           {/* Mobile Search Button */}
           <button
             onClick={onOpenPalette}
@@ -127,7 +127,7 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
           )}
 
           {/* Settings In-Place Anchor */}
-          <div className="relative" ref={containerRef}>
+          <div className="relative">
             <button
               onClick={() => setShowSettings(prev => !prev)}
               className="h-8 w-8 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 grid place-items-center transition-colors cursor-pointer text-stone-700 dark:text-zinc-300"
