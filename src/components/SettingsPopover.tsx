@@ -42,7 +42,7 @@ export function SettingsPopover({ onClose }: SettingsPopoverProps) {
         onClick={onClose}
       />
 
-      <div className="fixed inset-x-3 top-16 z-50 mx-auto max-w-sm sm:static sm:inset-auto sm:z-auto sm:max-w-none sm:mx-0 sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-80 p-4 shadow-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl space-y-3.5 animate-in fade-in zoom-in-95">
+      <div className="fixed inset-x-3 top-16 z-50 mx-auto max-w-sm sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:left-auto sm:mt-2 sm:w-80 sm:mx-0 sm:max-w-none p-4 shadow-xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-2xl space-y-3.5 animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
           <div className="flex items-center gap-2">
