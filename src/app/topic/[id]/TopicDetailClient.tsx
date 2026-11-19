@@ -19,7 +19,6 @@ import {
   Target,
   Sparkles,
   Layers,
-  ExternalLink,
   ListFilter
 } from 'lucide-react';
 
@@ -399,14 +398,13 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
                           href={problemUrl(q[1])}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 ${
+                          className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all ${
                             solved
                               ? 'border border-stone-200 dark:border-zinc-700 text-stone-600 dark:text-zinc-400 hover:bg-stone-100'
                               : 'bg-stone-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90'
                           }`}
                         >
-                          <span>{solved ? 'Review' : 'Solve'}</span>
-                          <ExternalLink className="w-3 h-3 opacity-60" />
+                          {solved ? 'Review' : 'Solve'}
                         </a>
                       </div>
                     </li>
@@ -491,14 +489,13 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
                         href={problemUrl(q[1])}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all inline-flex items-center gap-1 ${
+                        className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all ${
                           solved
                             ? 'border border-stone-200 dark:border-zinc-700 text-stone-600 dark:text-zinc-400 hover:bg-stone-100'
                             : 'bg-violet-600 hover:bg-violet-700 text-white'
                         }`}
                       >
-                        <span>{solved ? 'Review' : 'Solve'}</span>
-                        <ExternalLink className="w-3 h-3 opacity-70" />
+                        {solved ? 'Review' : 'Solve'}
                       </a>
                     </div>
                   </li>

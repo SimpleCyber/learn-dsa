@@ -22,7 +22,6 @@ import {
   BookOpen,
   ArrowLeft,
   ArrowRight,
-  ExternalLink,
   CheckCircle2,
   ListFilter
 } from 'lucide-react';
@@ -416,10 +415,9 @@ export function PatternLessonInPlace({
                     href={problemUrl(q[1])}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-xs sm:text-sm text-stone-800 dark:text-zinc-200 hover:text-orange-600 dark:hover:text-orange-400 transition-colors flex items-center gap-1 truncate"
+                    className="font-semibold text-xs sm:text-sm text-stone-800 dark:text-zinc-200 hover:text-orange-600 dark:hover:text-orange-400 transition-colors truncate"
                   >
-                    <span>{q[1]}</span>
-                    <ExternalLink className="w-3 h-3 text-stone-400 shrink-0" />
+                    {q[1]}
                   </a>
                 </div>
 
@@ -437,7 +435,7 @@ export function PatternLessonInPlace({
                         : 'bg-orange-600 hover:bg-orange-700 text-white shadow-2xs'
                     }`}
                   >
-                    {solved ? 'Review ↗' : 'Solve ↗'}
+                    {solved ? 'Review' : 'Solve'}
                   </a>
                 </div>
               </div>

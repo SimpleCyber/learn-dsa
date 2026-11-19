@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ExternalLink, Check, X as CloseIcon } from 'lucide-react';
+import { Check, X as CloseIcon } from 'lucide-react';
 import { useDsa } from '@/context/DsaContext';
 
 interface ProblemModalProps {
@@ -71,9 +71,9 @@ export function ProblemModal({ problem, onClose }: ProblemModalProps) {
             href={leetCodeUrl}
             target="_blank"
             rel="noreferrer"
-            className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+            className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold flex items-center justify-center transition-colors shadow-xs"
           >
-            Open in LeetCode <ExternalLink className="w-3.5 h-3.5" />
+            Open in LeetCode
           </a>
         </div>
       </div>
