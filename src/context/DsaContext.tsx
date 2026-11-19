@@ -14,6 +14,8 @@ import {
 export type LeetCodeProfile = LeetCodeProfileResponse;
 export type PatternMode = 'new' | 'old';
 
+const DISPLAY_CLASSIC_ENV = process.env.NEXT_PUBLIC_DISPLAY_CLASSIC === 'true';
+
 export interface TopicStat {
   done: number;
   total: number;
@@ -46,6 +48,7 @@ interface DsaContextType {
   topicStats: (t: Topic) => TopicStat;
   overallStats: () => OverallStat;
   patternMode: PatternMode;
+  displayClassic: boolean;
   togglePatternMode: () => void;
   setPatternMode: (mode: PatternMode) => void;
 }
@@ -60,6 +63,7 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
   const [syncing, setSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [patternMode, setPatternModeState] = useState<PatternMode>('new');
+  const displayClassic = DISPLAY_CLASSIC_ENV;
 
   // Initialize from LocalStorage
   useEffect(() => {
@@ -90,25 +94,31 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
       if (savedSolved) setSolved(JSON.parse(savedSolved));
       if (savedHide) setHideSolved(JSON.parse(savedHide));
 
-      const savedMode = localStorage.getItem('dsa.patternMode') as PatternMode | null;
-      if (savedMode === 'new' || savedMode === 'old') {
-        setPatternModeState(savedMode);
+      if (displayClassic) {
+        const savedMode = localStorage.getItem('dsa.patternMode') as PatternMode | null;
+        if (savedMode === 'new' || savedMode === 'old') {
+          setPatternModeState(savedMode);
+        }
+      } else {
+        setPatternModeState('new');
       }
     } catch {
       // Ignore localstorage parse issues
     }
-  }, []);
+  }, [displayClassic]);
 
   const setPatternMode = useCallback((mode: PatternMode) => {
+    if (!displayClassic) return;
     setPatternModeState(mode);
     try {
       localStorage.setItem('dsa.patternMode', mode);
     } catch {
       // Ignore
     }
-  }, []);
+  }, [displayClassic]);
 
   const togglePatternMode = useCallback(() => {
+    if (!displayClassic) return;
     setPatternModeState(prev => {
       const next = prev === 'new' ? 'old' : 'new';
       try {
@@ -118,7 +128,7 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
       }
       return next;
     });
-  }, []);
+  }, [displayClassic]);
 
   const getSolvedMap = useCallback(() => {
     return (username && solved[username]) || {};
@@ -256,6 +266,7 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
         topicStats,
         overallStats,
         patternMode,
+        displayClassic,
         togglePatternMode,
         setPatternMode
       }}

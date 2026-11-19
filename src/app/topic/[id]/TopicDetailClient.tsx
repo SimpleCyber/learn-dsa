@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useSearchParams } from 'next/navigation';
 import { TOPICS } from '@/data/topics';
 import { LESSONS_DATA } from '@/data/lessons-data';
 import { useDsa } from '@/context/DsaContext';
+import { PatternLessonInPlace } from '@/components/PatternLessonInPlace';
 import { pad2, LEVEL_MAP, problemUrl } from '@/lib/utils';
 import {
   ChevronDown,
@@ -18,7 +19,8 @@ import {
   Target,
   Sparkles,
   Layers,
-  ExternalLink
+  ExternalLink,
+  ListFilter
 } from 'lucide-react';
 
 interface TopicDetailClientProps {
@@ -27,10 +29,49 @@ interface TopicDetailClientProps {
 
 export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
   const topic = TOPICS.find(t => t.id === topicId);
-  const { isSolved, topicStats, patternMode, setPatternMode } = useDsa();
+  const { isSolved, topicStats, patternMode, setPatternMode, displayClassic } = useDsa();
+  const searchParams = useSearchParams();
 
   // State
   const [bannerExpanded, setBannerExpanded] = useState<boolean>(false);
+  const [activePatternIdx, setActivePatternIdx] = useState<number | null>(null);
+  const [readPatterns, setReadPatterns] = useState<Record<string, boolean>>({});
+
+  // Sync active pattern from URL query param if present (?pattern=0)
+  useEffect(() => {
+    const pParam = searchParams.get('pattern');
+    if (pParam !== null) {
+      const idx = parseInt(pParam, 10);
+      if (!isNaN(idx) && topic && topic.patterns[idx]) {
+        setActivePatternIdx(idx);
+      }
+    }
+  }, [searchParams, topic]);
+
+  // Sync read status from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('dsa.read');
+      if (saved) {
+        setReadPatterns(JSON.parse(saved));
+      }
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  const toggleRead = (tId: number, pIdx: number) => {
+    const key = `${tId}.${pIdx}`;
+    setReadPatterns(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem('dsa.read', JSON.stringify(next));
+      } catch {
+        // Ignore
+      }
+      return next;
+    });
+  };
 
   // Filters
   const [search, setSearch] = useState<string>('');
@@ -130,36 +171,54 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
               </span>
             </div>
 
-            {/* Pattern Version Toggle Tabs */}
-            <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-[11px] font-medium">
-              <button
-                onClick={() => setPatternMode('new')}
-                className={`px-2.5 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
-                  patternMode === 'new'
-                    ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
-                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
-                }`}
-                title="New comprehensive pattern lessons"
-              >
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span>New</span>
-              </button>
-              <button
-                onClick={() => setPatternMode('old')}
-                className={`px-2.5 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
-                  patternMode === 'old'
-                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
-                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
-                }`}
-                title="Classic pattern summary"
-              >
-                <Layers className="w-3 h-3 text-stone-400" />
-                <span>Classic</span>
-              </button>
+            {/* Action buttons / Toggles */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {activePatternIdx !== null && (
+                <button
+                  onClick={() => setActivePatternIdx(null)}
+                  className="px-2 py-0.5 rounded-lg border border-orange-200 dark:border-orange-900/60 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 text-[11px] font-semibold flex items-center gap-1 cursor-pointer hover:bg-orange-100 transition-colors"
+                  title="Switch right panel to question list"
+                >
+                  <ListFilter className="w-3 h-3" />
+                  <span>Questions</span>
+                </button>
+              )}
+
+              {/* Pattern Version Toggle Tabs - Only if displayClassic is enabled */}
+              {displayClassic && (
+                <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-[11px] font-medium">
+                  <button
+                    onClick={() => setPatternMode('new')}
+                    className={`px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                      patternMode === 'new'
+                        ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
+                        : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                    }`}
+                    title="New pattern lessons"
+                  >
+                    <Sparkles className="w-3 h-3 text-amber-500" />
+                    <span>New</span>
+                  </button>
+                  <button
+                    onClick={() => setPatternMode('old')}
+                    className={`px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                      patternMode === 'old'
+                        ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
+                        : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                    }`}
+                    title="Classic pattern summary"
+                  >
+                    <Layers className="w-3 h-3 text-stone-400" />
+                    <span>Classic</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <p className="text-xs text-stone-400 leading-snug">
-            Click any pattern to open its full lesson in a new tab:
+            {activePatternIdx !== null
+              ? 'Click any pattern below to switch lesson:'
+              : 'Click any pattern to study its lesson directly on the right:'}
           </p>
 
           <div className="space-y-1.5 max-h-72 lg:max-h-[calc(100vh-16rem)] overflow-y-auto no-scrollbar w-full min-w-0">
@@ -167,35 +226,64 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
               const lesson = LESSONS_DATA[String(topic.id)]?.[String(idx)];
               const pTitle = patternMode === 'new' && lesson?.name ? lesson.name : p[0];
               const pSubtitle = patternMode === 'new' && lesson?.when ? lesson.when : p[1];
+              const isPatternRead = !!readPatterns[`${topic.id}.${idx}`];
+              const isActive = activePatternIdx === idx;
 
               return (
-                <Link
+                <button
                   key={idx}
-                  href={`/learn/${topic.id}/${idx}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full text-left p-2.5 sm:p-3 rounded-xl border border-stone-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900 hover:bg-orange-50/40 dark:hover:bg-zinc-800/80 transition-all flex items-start gap-2.5 group cursor-pointer min-w-0"
+                  onClick={() => {
+                    setActivePatternIdx(prev => prev === idx ? null : idx);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`w-full text-left p-2.5 sm:p-3 rounded-xl border transition-all flex items-start gap-2.5 group cursor-pointer min-w-0 ${
+                    isActive
+                      ? 'border-orange-500 bg-orange-50/70 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold shadow-xs ring-1 ring-orange-500/30'
+                      : 'border-stone-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900 hover:bg-orange-50/40 dark:hover:bg-zinc-800/80 text-stone-800 dark:text-zinc-200'
+                  }`}
                 >
-                  <span className="w-5 h-5 rounded-md bg-stone-100 dark:bg-zinc-800 group-hover:bg-orange-100 dark:group-hover:bg-orange-950 text-stone-600 dark:text-zinc-400 group-hover:text-orange-700 dark:group-hover:text-orange-300 font-mono text-[11px] font-bold grid place-items-center shrink-0 mt-0.5">
+                  <span
+                    className={`w-5 h-5 rounded-md font-mono text-[11px] font-bold grid place-items-center shrink-0 mt-0.5 ${
+                      isActive
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-stone-100 dark:bg-zinc-800 group-hover:bg-orange-100 dark:group-hover:bg-orange-950 text-stone-600 dark:text-zinc-400 group-hover:text-orange-700 dark:group-hover:text-orange-300'
+                    }`}
+                  >
                     {idx + 1}
                   </span>
                   <div className="min-w-0 flex-1 overflow-hidden">
-                    <div className="font-semibold text-xs text-stone-800 dark:text-zinc-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-snug break-words flex items-center justify-between gap-1.5">
+                    <div className="font-semibold text-xs leading-snug break-words flex items-center justify-between gap-1.5">
                       <span className="truncate">{pTitle}</span>
-                      <ExternalLink className="w-3 h-3 text-stone-400 group-hover:text-orange-500 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" />
+                      {isPatternRead && (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      )}
                     </div>
                     <div className="text-[11px] text-stone-400 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-snug break-words">
                       {pSubtitle}
                     </div>
                   </div>
-                </Link>
+                </button>
               );
             })}
           </div>
         </aside>
 
-        {/* RIGHT SIDE: Curated Questions and Checkpoints */}
+        {/* RIGHT SIDE: Curated Questions and Checkpoints OR Pattern Lesson In-Place */}
         <div className="lg:col-span-8 space-y-6 w-full min-w-0">
+          {activePatternIdx !== null ? (
+            <PatternLessonInPlace
+              topic={topic}
+              patternIndex={activePatternIdx}
+              isRead={!!readPatterns[`${topic.id}.${activePatternIdx}`]}
+              onToggleRead={() => toggleRead(topic.id, activePatternIdx)}
+              onBackToQuestions={() => setActivePatternIdx(null)}
+              onSelectPattern={idx => {
+                setActivePatternIdx(idx);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          ) : (
+            <>
           {/* Filter Toolbar */}
           <div className="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 sm:p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 text-xs w-full min-w-0">
             {/* Search */}
@@ -418,6 +506,8 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
               })}
             </ul>
           </div>
+            </>
+          )}
         </div>
       </div>
 

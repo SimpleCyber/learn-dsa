@@ -31,7 +31,7 @@ interface PatternModalProps {
 }
 
 export function PatternModal({ topic, patternIndex, onClose, onOpenProblem }: PatternModalProps) {
-  const { isSolved, patternMode, setPatternMode } = useDsa();
+  const { isSolved, patternMode, setPatternMode, displayClassic } = useDsa();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -133,33 +133,35 @@ export function PatternModal({ topic, patternIndex, onClose, onOpenProblem }: Pa
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* Version Toggle Tabs */}
-            <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-xs font-medium">
-              <button
-                onClick={() => setPatternMode('new')}
-                className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
-                  patternMode === 'new'
-                    ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
-                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
-                }`}
-                title="Switch to New comprehensive pattern lesson"
-              >
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span>New</span>
-              </button>
-              <button
-                onClick={() => setPatternMode('old')}
-                className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
-                  patternMode === 'old'
-                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
-                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
-                }`}
-                title="Switch to Classic pattern summary"
-              >
-                <Layers className="w-3 h-3 text-stone-400" />
-                <span>Classic</span>
-              </button>
-            </div>
+            {/* Version Toggle Tabs - Only if displayClassic is enabled */}
+            {displayClassic && (
+              <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-xs font-medium">
+                <button
+                  onClick={() => setPatternMode('new')}
+                  className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                    patternMode === 'new'
+                      ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
+                      : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                  }`}
+                  title="Switch to New comprehensive pattern lesson"
+                >
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  <span>New</span>
+                </button>
+                <button
+                  onClick={() => setPatternMode('old')}
+                  className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                    patternMode === 'old'
+                      ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
+                      : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                  }`}
+                  title="Switch to Classic pattern summary"
+                >
+                  <Layers className="w-3 h-3 text-stone-400" />
+                  <span>Classic</span>
+                </button>
+              </div>
+            )}
 
             <button
               onClick={onClose}

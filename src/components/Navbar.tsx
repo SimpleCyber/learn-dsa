@@ -12,7 +12,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onOpenPalette }: NavbarProps) {
-  const { username, profile, overallStats, patternMode, togglePatternMode } = useDsa();
+  const { username, profile, overallStats, patternMode, togglePatternMode, displayClassic } = useDsa();
   const { theme, toggleTheme } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -142,19 +142,21 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
             )}
           </div>
 
-          {/* Pattern Version Toggle (Lucide Icons: Sparkles / Layers) */}
-          <button
-            onClick={togglePatternMode}
-            className="h-8 w-8 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 grid place-items-center transition-colors cursor-pointer text-stone-700 dark:text-zinc-300"
-            title={`Pattern mode: ${patternMode === 'new' ? 'New Patterns' : 'Classic Patterns'}. Click to toggle.`}
-            aria-label="Toggle pattern version"
-          >
-            {patternMode === 'new' ? (
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            ) : (
-              <Layers className="w-3.5 h-3.5 text-stone-400" />
-            )}
-          </button>
+          {/* Pattern Version Toggle (Lucide Icons: Sparkles / Layers) - Only if displayClassic is enabled */}
+          {displayClassic && (
+            <button
+              onClick={togglePatternMode}
+              className="h-8 w-8 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 grid place-items-center transition-colors cursor-pointer text-stone-700 dark:text-zinc-300"
+              title={`Pattern mode: ${patternMode === 'new' ? 'New Patterns' : 'Classic Patterns'}. Click to toggle.`}
+              aria-label="Toggle pattern version"
+            >
+              {patternMode === 'new' ? (
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              ) : (
+                <Layers className="w-3.5 h-3.5 text-stone-400" />
+              )}
+            </button>
+          )}
 
           {/* Dark / Light Theme Toggle */}
           <button

@@ -84,7 +84,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             title: lesson?.name || name,
             sub: `Topic ${pad2(t.id)}: ${t.name}`,
             action: () => {
-              window.open(`/learn/${t.id}/${pIdx}`, '_blank');
+              router.push(`/topic/${t.id}?pattern=${pIdx}`);
               onClose();
             }
           });

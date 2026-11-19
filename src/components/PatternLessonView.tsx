@@ -34,7 +34,7 @@ interface PatternLessonViewProps {
 
 export function PatternLessonView({ topicId, patternIndex }: PatternLessonViewProps) {
   const topic = TOPICS.find(t => t.id === topicId);
-  const { isSolved, patternMode, setPatternMode } = useDsa();
+  const { isSolved, patternMode, setPatternMode, displayClassic } = useDsa();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [readPatterns, setReadPatterns] = useState<Record<string, boolean>>({});
@@ -167,33 +167,35 @@ export function PatternLessonView({ topicId, patternIndex }: PatternLessonViewPr
             <span>{isRead ? 'Lesson Read' : 'Mark as Read'}</span>
           </button>
 
-          {/* Pattern Mode Toggle */}
-          <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-xs font-medium">
-            <button
-              onClick={() => setPatternMode('new')}
-              className={`px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
-                patternMode === 'new'
-                  ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
-                  : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
-              }`}
-              title="New pattern lesson"
-            >
-              <Sparkles className="w-3 h-3 text-amber-500" />
-              <span>New</span>
-            </button>
-            <button
-              onClick={() => setPatternMode('old')}
-              className={`px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
-                patternMode === 'old'
-                  ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
-                  : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
-              }`}
-              title="Classic summary"
-            >
-              <Layers className="w-3 h-3 text-stone-400" />
-              <span>Classic</span>
-            </button>
-          </div>
+          {/* Pattern Mode Toggle - Only if displayClassic is enabled */}
+          {displayClassic && (
+            <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-xs font-medium">
+              <button
+                onClick={() => setPatternMode('new')}
+                className={`px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
+                  patternMode === 'new'
+                    ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
+                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                }`}
+                title="New pattern lesson"
+              >
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span>New</span>
+              </button>
+              <button
+                onClick={() => setPatternMode('old')}
+                className={`px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
+                  patternMode === 'old'
+                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
+                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                }`}
+                title="Classic summary"
+              >
+                <Layers className="w-3 h-3 text-stone-400" />
+                <span>Classic</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
