@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { TOPICS } from '@/data/topics';
 import { LESSONS_DATA } from '@/data/lessons-data';
-import { pad2 } from '@/lib/utils';
+import { pad2, problemUrl } from '@/lib/utils';
 import { Search, BookOpen, Layers, Code2 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -84,7 +84,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             title: lesson?.name || name,
             sub: `Topic ${pad2(t.id)}: ${t.name}`,
             action: () => {
-              router.push(`/topic/${t.id}`);
+              window.open(`/learn/${t.id}/${pIdx}`, '_blank');
               onClose();
             }
           });
@@ -99,7 +99,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             title: `${title} (${diff === 'E' ? 'Easy' : diff === 'M' ? 'Medium' : 'Hard'})`,
             sub: `${t.name} · ${tag}`,
             action: () => {
-              router.push(`/topic/${t.id}`);
+              window.open(problemUrl(title), '_blank');
               onClose();
             }
           });

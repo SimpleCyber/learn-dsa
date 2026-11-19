@@ -115,11 +115,11 @@ export function PatternModal({ topic, patternIndex, onClose, onOpenProblem }: Pa
                 </span>
                 {patternMode === 'new' ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-[10px] font-mono font-bold">
-                    <Sparkles className="w-2.5 h-2.5" /> v2 New Lesson
+                    <Sparkles className="w-2.5 h-2.5" /> New
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-zinc-400 text-[10px] font-mono font-semibold">
-                    <Layers className="w-2.5 h-2.5" /> v1 Classic
+                    <Layers className="w-2.5 h-2.5" /> Classic
                   </span>
                 )}
               </div>

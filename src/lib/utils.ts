@@ -2,6 +2,17 @@ export function norm(title: string): string {
   return (title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+export function slugify(title: string): string {
+  return (title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+export function problemUrl(title: string): string {
+  return `https://leetcode.com/problems/${slugify(title)}/`;
+}
+
 export function pad2(n: number): string {
   return n < 10 ? '0' + n : '' + n;
 }

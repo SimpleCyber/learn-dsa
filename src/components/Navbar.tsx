@@ -145,24 +145,14 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
           {/* Pattern Version Toggle (Lucide Icons: Sparkles / Layers) */}
           <button
             onClick={togglePatternMode}
-            className="h-8 px-2 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 flex items-center gap-1.5 transition-colors cursor-pointer text-stone-700 dark:text-zinc-300"
-            title={`Current: ${patternMode === 'new' ? 'New Patterns (v2)' : 'Classic Patterns (v1)'}. Click to switch.`}
+            className="h-8 w-8 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 grid place-items-center transition-colors cursor-pointer text-stone-700 dark:text-zinc-300"
+            title={`Pattern mode: ${patternMode === 'new' ? 'New Patterns' : 'Classic Patterns'}. Click to toggle.`}
             aria-label="Toggle pattern version"
           >
             {patternMode === 'new' ? (
-              <>
-                <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span className="text-[10px] font-mono font-bold text-orange-600 dark:text-orange-400 hidden xs:inline">
-                  v2
-                </span>
-              </>
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             ) : (
-              <>
-                <Layers className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-                <span className="text-[10px] font-mono font-semibold text-stone-400 hidden xs:inline">
-                  v1
-                </span>
-              </>
+              <Layers className="w-3.5 h-3.5 text-stone-400" />
             )}
           </button>
 

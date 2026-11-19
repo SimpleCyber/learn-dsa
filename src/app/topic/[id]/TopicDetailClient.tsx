@@ -6,9 +6,7 @@ import { notFound } from 'next/navigation';
 import { TOPICS } from '@/data/topics';
 import { LESSONS_DATA } from '@/data/lessons-data';
 import { useDsa } from '@/context/DsaContext';
-import { PatternModal } from '@/components/PatternModal';
-import { ProblemModal } from '@/components/ProblemModal';
-import { pad2, LEVEL_MAP } from '@/lib/utils';
+import { pad2, LEVEL_MAP, problemUrl } from '@/lib/utils';
 import {
   ChevronDown,
   Search,
@@ -19,7 +17,8 @@ import {
   Tag,
   Target,
   Sparkles,
-  Layers
+  Layers,
+  ExternalLink
 } from 'lucide-react';
 
 interface TopicDetailClientProps {
@@ -32,8 +31,6 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
 
   // State
   const [bannerExpanded, setBannerExpanded] = useState<boolean>(false);
-  const [activePatternIdx, setActivePatternIdx] = useState<number | null>(null);
-  const [activeProblem, setActiveProblem] = useState<{ num: number; title: string } | null>(null);
 
   // Filters
   const [search, setSearch] = useState<string>('');
@@ -137,24 +134,24 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
             <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-[11px] font-medium">
               <button
                 onClick={() => setPatternMode('new')}
-                className={`px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                className={`px-2.5 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
                   patternMode === 'new'
                     ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
                     : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
                 }`}
-                title="New comprehensive pattern lessons (v2)"
+                title="New comprehensive pattern lessons"
               >
                 <Sparkles className="w-3 h-3 text-amber-500" />
                 <span>New</span>
               </button>
               <button
                 onClick={() => setPatternMode('old')}
-                className={`px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                className={`px-2.5 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
                   patternMode === 'old'
                     ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
                     : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
                 }`}
-                title="Classic pattern summary (v1)"
+                title="Classic pattern summary"
               >
                 <Layers className="w-3 h-3 text-stone-400" />
                 <span>Classic</span>
@@ -162,9 +159,7 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
             </div>
           </div>
           <p className="text-xs text-stone-400 leading-snug">
-            {patternMode === 'new'
-              ? 'Click any pattern to view its full lesson, intuition, C++ template, and simulation:'
-              : 'Click any pattern to view its classic intuition, walkthrough, and algorithm:'}
+            Click any pattern to open its full lesson in a new tab:
           </p>
 
           <div className="space-y-1.5 max-h-72 lg:max-h-[calc(100vh-16rem)] overflow-y-auto no-scrollbar w-full min-w-0">
@@ -174,9 +169,11 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
               const pSubtitle = patternMode === 'new' && lesson?.when ? lesson.when : p[1];
 
               return (
-                <button
+                <Link
                   key={idx}
-                  onClick={() => setActivePatternIdx(idx)}
+                  href={`/learn/${topic.id}/${idx}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full text-left p-2.5 sm:p-3 rounded-xl border border-stone-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900 hover:bg-orange-50/40 dark:hover:bg-zinc-800/80 transition-all flex items-start gap-2.5 group cursor-pointer min-w-0"
                 >
                   <span className="w-5 h-5 rounded-md bg-stone-100 dark:bg-zinc-800 group-hover:bg-orange-100 dark:group-hover:bg-orange-950 text-stone-600 dark:text-zinc-400 group-hover:text-orange-700 dark:group-hover:text-orange-300 font-mono text-[11px] font-bold grid place-items-center shrink-0 mt-0.5">
@@ -185,17 +182,13 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
                   <div className="min-w-0 flex-1 overflow-hidden">
                     <div className="font-semibold text-xs text-stone-800 dark:text-zinc-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-snug break-words flex items-center justify-between gap-1.5">
                       <span className="truncate">{pTitle}</span>
-                      {patternMode === 'new' && (
-                        <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 shrink-0 font-bold">
-                          v2
-                        </span>
-                      )}
+                      <ExternalLink className="w-3 h-3 text-stone-400 group-hover:text-orange-500 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="text-[11px] text-stone-400 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-snug break-words">
                       {pSubtitle}
                     </div>
                   </div>
-                </button>
+                </Link>
               );
             })}
           </div>
@@ -287,12 +280,14 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
 
                         {/* Title & Details */}
                         <div className="min-w-0 flex-1">
-                          <button
-                            onClick={() => setActiveProblem({ num: q[0], title: q[1] })}
+                          <a
+                            href={problemUrl(q[1])}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="font-semibold text-xs sm:text-sm text-stone-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400 text-left transition-colors cursor-pointer block break-words"
                           >
                             {q[1]}
-                          </button>
+                          </a>
                           <div className="mt-1 flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-stone-400 flex-wrap">
                             <span className="px-1.5 sm:px-2 py-0.5 rounded bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-zinc-400 inline-flex items-center gap-1">
                               <Tag className="w-2.5 h-2.5" /> {q[3]}
@@ -312,16 +307,19 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
                           {lvlName}
                         </span>
 
-                        <button
-                          onClick={() => setActiveProblem({ num: q[0], title: q[1] })}
-                          className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        <a
+                          href={problemUrl(q[1])}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 ${
                             solved
                               ? 'border border-stone-200 dark:border-zinc-700 text-stone-600 dark:text-zinc-400 hover:bg-stone-100'
                               : 'bg-stone-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90'
                           }`}
                         >
-                          {solved ? 'Review' : 'Solve'}
-                        </button>
+                          <span>{solved ? 'Review' : 'Solve'}</span>
+                          <ExternalLink className="w-3 h-3 opacity-60" />
+                        </a>
                       </div>
                     </li>
                   );
@@ -377,12 +375,14 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
                         {solved ? '✓' : idx + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <button
-                          onClick={() => setActiveProblem({ num: q[0], title: q[1] })}
+                        <a
+                          href={problemUrl(q[1])}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="font-semibold text-xs sm:text-sm text-stone-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer text-left block break-words"
                         >
                           {q[1]}
-                        </button>
+                        </a>
                         <div className="text-[11px] sm:text-xs text-stone-400 mt-1 flex items-center gap-1.5 sm:gap-2 flex-wrap">
                           <span>#{q[0]} · {q[3]}</span>
                           {solved && (
@@ -399,16 +399,19 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
                         {lvlName}
                       </span>
 
-                      <button
-                        onClick={() => setActiveProblem({ num: q[0], title: q[1] })}
-                        className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                      <a
+                        href={problemUrl(q[1])}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all inline-flex items-center gap-1 ${
                           solved
                             ? 'border border-stone-200 dark:border-zinc-700 text-stone-600 dark:text-zinc-400 hover:bg-stone-100'
                             : 'bg-violet-600 hover:bg-violet-700 text-white'
                         }`}
                       >
-                        {solved ? 'Review' : 'Solve'}
-                      </button>
+                        <span>{solved ? 'Review' : 'Solve'}</span>
+                        <ExternalLink className="w-3 h-3 opacity-70" />
+                      </a>
                     </div>
                   </li>
                 );
@@ -446,24 +449,6 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
           )}
         </div>
       </div>
-
-      {/* Pattern Modal */}
-      {activePatternIdx !== null && (
-        <PatternModal
-          topic={topic}
-          patternIndex={activePatternIdx}
-          onClose={() => setActivePatternIdx(null)}
-          onOpenProblem={(num, title) => setActiveProblem({ num, title })}
-        />
-      )}
-
-      {/* Problem Modal */}
-      {activeProblem && (
-        <ProblemModal
-          problem={activeProblem}
-          onClose={() => setActiveProblem(null)}
-        />
-      )}
     </div>
   );
 }

@@ -71,6 +71,9 @@ export function LessonVisualizer({ viz, title }: LessonVisualizerProps) {
   // Resolve active cells (either from current frame or root viz)
   const cells: any[] = currentFrame.cells || viz.cells || [];
   const kind = viz.kind || 'array';
+  const gridCells: any[][] = kind === 'grid' && Array.isArray(cells) && Array.isArray(cells[0])
+    ? cells
+    : [];
 
   return (
     <div className="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-stone-50/80 dark:bg-zinc-900/90 p-4 sm:p-5 space-y-3.5 shadow-xs">
@@ -189,25 +192,32 @@ export function LessonVisualizer({ viz, title }: LessonVisualizerProps) {
         )}
 
         {/* 2D Grid representation if present */}
-        {kind === 'grid' && viz.rows && (
-          <div className="flex flex-col items-center gap-1.5 py-1">
-            {viz.rows.map((row: any[], rIdx: number) => (
-              <div key={rIdx} className="flex gap-1.5">
-                {row.map((cell: any, cIdx: number) => {
-                  const cellKey = `${rIdx},${cIdx}`;
-                  const hlKey = (currentFrame.hl && currentFrame.hl[cellKey]) || '';
-                  const style = CELL_STYLES[hlKey] || CELL_STYLES[''];
-                  return (
-                    <div
-                      key={cIdx}
-                      className={`w-9 h-9 sm:w-10 sm:h-10 border rounded-lg grid place-items-center font-mono text-xs font-semibold ${style}`}
-                    >
-                      {cell}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+        {kind === 'grid' && gridCells.length > 0 && (
+          <div className="overflow-x-auto py-1 max-w-full">
+            <div className="flex flex-col items-center gap-1.5 min-w-max mx-auto">
+              {gridCells.map((row: any[], rIdx: number) => (
+                <div key={rIdx} className="flex gap-1.5 items-center">
+                  {Array.isArray(viz.rows) && viz.rows[rIdx] !== undefined && (
+                    <span className="w-6 text-[10px] font-mono text-stone-400 text-right pr-1">
+                      {viz.rows[rIdx]}
+                    </span>
+                  )}
+                  {Array.isArray(row) && row.map((cell: any, cIdx: number) => {
+                    const cellKey = `${rIdx},${cIdx}`;
+                    const hlKey = (currentFrame.hl && currentFrame.hl[cellKey]) || '';
+                    const style = CELL_STYLES[hlKey] || CELL_STYLES[''];
+                    return (
+                      <div
+                        key={cIdx}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 border rounded-lg grid place-items-center font-mono text-xs font-semibold transition-all duration-200 ${style}`}
+                      >
+                        {cell === null || cell === undefined ? '' : String(cell)}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
