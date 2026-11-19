@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { TOPICS } from '@/data/topics';
+import { LESSONS_DATA } from '@/data/lessons-data';
 import { pad2 } from '@/lib/utils';
 import { Search, BookOpen, Layers, Code2 } from 'lucide-react';
 
@@ -74,11 +75,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       }
 
       // Search patterns
-      t.patterns.forEach(([name, desc]) => {
-        if (name.toLowerCase().includes(q) || desc.toLowerCase().includes(q)) {
+      t.patterns.forEach(([name, desc], pIdx) => {
+        const lesson = LESSONS_DATA[String(t.id)]?.[String(pIdx)];
+        const inLesson = lesson && (lesson.when.toLowerCase().includes(q) || lesson.idea.toLowerCase().includes(q));
+        if (name.toLowerCase().includes(q) || desc.toLowerCase().includes(q) || inLesson) {
           items.push({
             type: 'pattern',
-            title: name,
+            title: lesson?.name || name,
             sub: `Topic ${pad2(t.id)}: ${t.name}`,
             action: () => {
               router.push(`/topic/${t.id}`);

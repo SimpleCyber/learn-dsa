@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { useDsa } from '@/context/DsaContext';
 import { useTheme } from '@/context/ThemeContext';
 import { SettingsPopover } from '@/components/SettingsPopover';
-import { Settings, Sun, Moon, Search } from 'lucide-react';
+import { Settings, Sun, Moon, Search, Sparkles, Layers } from 'lucide-react';
 
 interface NavbarProps {
   onOpenPalette?: () => void;
 }
 
 export function Navbar({ onOpenPalette }: NavbarProps) {
-  const { username, profile, overallStats } = useDsa();
+  const { username, profile, overallStats, patternMode, togglePatternMode } = useDsa();
   const { theme, toggleTheme } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,7 +101,7 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
           {username ? (
             <button
               onClick={() => setShowSettings(prev => !prev)}
-              className="h-8 px-2 sm:px-2.5 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-zinc-300 flex items-center gap-1.5 sm:gap-2 text-xs font-mono font-medium transition-colors cursor-pointer max-w-[110px] xs:max-w-[140px] sm:max-w-none"
+              className="h-8 px-2 sm:px-2.5 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-zinc-300 flex items-center gap-1.5 sm:gap-2 text-xs font-mono font-medium transition-colors cursor-pointer max-w-[85px] xs:max-w-[130px] sm:max-w-none min-w-0"
               title={`Connected as @${username}. Click for settings.`}
             >
               {avatarUrl ? (
@@ -141,6 +141,30 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
               <SettingsPopover onClose={() => setShowSettings(false)} />
             )}
           </div>
+
+          {/* Pattern Version Toggle (Lucide Icons: Sparkles / Layers) */}
+          <button
+            onClick={togglePatternMode}
+            className="h-8 px-2 rounded-lg border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-stone-100 dark:hover:bg-zinc-800 flex items-center gap-1.5 transition-colors cursor-pointer text-stone-700 dark:text-zinc-300"
+            title={`Current: ${patternMode === 'new' ? 'New Patterns (v2)' : 'Classic Patterns (v1)'}. Click to switch.`}
+            aria-label="Toggle pattern version"
+          >
+            {patternMode === 'new' ? (
+              <>
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="text-[10px] font-mono font-bold text-orange-600 dark:text-orange-400 hidden xs:inline">
+                  v2
+                </span>
+              </>
+            ) : (
+              <>
+                <Layers className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                <span className="text-[10px] font-mono font-semibold text-stone-400 hidden xs:inline">
+                  v1
+                </span>
+              </>
+            )}
+          </button>
 
           {/* Dark / Light Theme Toggle */}
           <button

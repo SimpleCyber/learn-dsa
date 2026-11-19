@@ -20,13 +20,14 @@ export const metadata: Metadata = {
     'Learn Data Structures & Algorithms through core algorithmic patterns, deep intuitions, step-by-step walkthroughs, and verified live LeetCode sync.',
   icons: {
     icon: [
-      { url: '/favicon.ico?v=4' },
-      { url: '/favicon.png?v=4', type: 'image/png' },
-      { url: '/favicon-32x32.png?v=4', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico?v=6' },
+      { url: '/favicon.png?v=6', type: 'image/png' },
+      { url: '/favicon-32x32.png?v=6', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192.png?v=6', sizes: '192x192', type: 'image/png' },
     ],
-    shortcut: '/favicon.ico?v=4',
+    shortcut: '/favicon.ico?v=6',
     apple: [
-      { url: '/apple-touch-icon.png?v=4', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-touch-icon.png?v=6', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -57,8 +58,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased bg-stone-50 dark:bg-zinc-950 text-stone-900 dark:text-zinc-100 min-h-screen overflow-x-hidden">
+    <html lang="en" suppressHydrationWarning className={`dark ${geistSans.variable} ${geistMono.variable} bg-stone-50 dark:bg-zinc-950`}>
+      <body className="antialiased bg-stone-50 dark:bg-zinc-950 text-stone-900 dark:text-zinc-100 min-h-screen overflow-x-hidden selection:bg-orange-500/20 selection:text-orange-500 w-full">
         <AppShell>{children}</AppShell>
       </body>
     </html>

@@ -12,6 +12,7 @@ import {
 } from '@/api';
 
 export type LeetCodeProfile = LeetCodeProfileResponse;
+export type PatternMode = 'new' | 'old';
 
 export interface TopicStat {
   done: number;
@@ -44,6 +45,9 @@ interface DsaContextType {
   getSolvedTs: (title: string) => number;
   topicStats: (t: Topic) => TopicStat;
   overallStats: () => OverallStat;
+  patternMode: PatternMode;
+  togglePatternMode: () => void;
+  setPatternMode: (mode: PatternMode) => void;
 }
 
 const DsaContext = createContext<DsaContextType | null>(null);
@@ -55,6 +59,7 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
   const [hideSolved, setHideSolved] = useState<boolean>(false);
   const [syncing, setSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [patternMode, setPatternModeState] = useState<PatternMode>('new');
 
   // Initialize from LocalStorage
   useEffect(() => {
@@ -84,9 +89,35 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
       if (savedProfile) setProfile(JSON.parse(savedProfile));
       if (savedSolved) setSolved(JSON.parse(savedSolved));
       if (savedHide) setHideSolved(JSON.parse(savedHide));
+
+      const savedMode = localStorage.getItem('dsa.patternMode') as PatternMode | null;
+      if (savedMode === 'new' || savedMode === 'old') {
+        setPatternModeState(savedMode);
+      }
     } catch {
       // Ignore localstorage parse issues
     }
+  }, []);
+
+  const setPatternMode = useCallback((mode: PatternMode) => {
+    setPatternModeState(mode);
+    try {
+      localStorage.setItem('dsa.patternMode', mode);
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  const togglePatternMode = useCallback(() => {
+    setPatternModeState(prev => {
+      const next = prev === 'new' ? 'old' : 'new';
+      try {
+        localStorage.setItem('dsa.patternMode', next);
+      } catch {
+        // Ignore
+      }
+      return next;
+    });
   }, []);
 
   const getSolvedMap = useCallback(() => {
@@ -223,7 +254,10 @@ export function DsaProvider({ children }: { children: React.ReactNode }) {
         isSolved,
         getSolvedTs,
         topicStats,
-        overallStats
+        overallStats,
+        patternMode,
+        togglePatternMode,
+        setPatternMode
       }}
     >
       {children}

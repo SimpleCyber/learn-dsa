@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TOPICS } from '@/data/topics';
+import { LESSONS_DATA } from '@/data/lessons-data';
 import { useDsa } from '@/context/DsaContext';
 import { PatternModal } from '@/components/PatternModal';
 import { ProblemModal } from '@/components/ProblemModal';
@@ -16,7 +17,9 @@ import {
   CheckCircle2,
   Lightbulb,
   Tag,
-  Target
+  Target,
+  Sparkles,
+  Layers
 } from 'lucide-react';
 
 interface TopicDetailClientProps {
@@ -25,7 +28,7 @@ interface TopicDetailClientProps {
 
 export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
   const topic = TOPICS.find(t => t.id === topicId);
-  const { isSolved, topicStats } = useDsa();
+  const { isSolved, topicStats, patternMode, setPatternMode } = useDsa();
 
   // State
   const [bannerExpanded, setBannerExpanded] = useState<boolean>(false);
@@ -119,39 +122,82 @@ export function TopicDetailClient({ topicId }: TopicDetailClientProps) {
       <div className="grid lg:grid-cols-12 gap-6 items-start w-full min-w-0">
         {/* LEFT SIDE: Pattern Options List */}
         <aside className="lg:col-span-4 rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 sm:p-5 space-y-3 lg:sticky lg:top-20 w-full min-w-0 overflow-hidden">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
-            <h2 className="font-bold text-sm text-stone-900 dark:text-zinc-100 flex items-center gap-1.5">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800 flex-wrap gap-2">
+            <div className="flex items-center gap-1.5">
               <Lightbulb className="w-4 h-4 text-orange-500" />
-              <span>Patterns to Learn</span>
-            </h2>
-            <span className="text-[11px] font-mono text-stone-400">
-              {topic.patterns.length} options
-            </span>
+              <h2 className="font-bold text-sm text-stone-900 dark:text-zinc-100">
+                Patterns
+              </h2>
+              <span className="text-[11px] font-mono text-stone-400 ml-1">
+                ({topic.patterns.length})
+              </span>
+            </div>
+
+            {/* Pattern Version Toggle Tabs */}
+            <div className="inline-flex rounded-lg border border-stone-200 dark:border-zinc-700 p-0.5 bg-stone-50 dark:bg-zinc-800 text-[11px] font-medium">
+              <button
+                onClick={() => setPatternMode('new')}
+                className={`px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                  patternMode === 'new'
+                    ? 'bg-white dark:bg-zinc-700 text-orange-600 dark:text-orange-400 font-bold shadow-2xs'
+                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                }`}
+                title="New comprehensive pattern lessons (v2)"
+              >
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span>New</span>
+              </button>
+              <button
+                onClick={() => setPatternMode('old')}
+                className={`px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer ${
+                  patternMode === 'old'
+                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-zinc-100 font-bold shadow-2xs'
+                    : 'text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200'
+                }`}
+                title="Classic pattern summary (v1)"
+              >
+                <Layers className="w-3 h-3 text-stone-400" />
+                <span>Classic</span>
+              </button>
+            </div>
           </div>
           <p className="text-xs text-stone-400 leading-snug">
-            Click any pattern to view its logic, walkthrough, C++ template, and visualizer:
+            {patternMode === 'new'
+              ? 'Click any pattern to view its full lesson, intuition, C++ template, and simulation:'
+              : 'Click any pattern to view its classic intuition, walkthrough, and algorithm:'}
           </p>
 
           <div className="space-y-1.5 max-h-72 lg:max-h-[calc(100vh-16rem)] overflow-y-auto no-scrollbar w-full min-w-0">
-            {topic.patterns.map((p, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActivePatternIdx(idx)}
-                className="w-full text-left p-2.5 sm:p-3 rounded-xl border border-stone-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900 hover:bg-orange-50/40 dark:hover:bg-zinc-800/80 transition-all flex items-start gap-2.5 group cursor-pointer min-w-0"
-              >
-                <span className="w-5 h-5 rounded-md bg-stone-100 dark:bg-zinc-800 group-hover:bg-orange-100 dark:group-hover:bg-orange-950 text-stone-600 dark:text-zinc-400 group-hover:text-orange-700 dark:group-hover:text-orange-300 font-mono text-[11px] font-bold grid place-items-center shrink-0 mt-0.5">
-                  {idx + 1}
-                </span>
-                <div className="min-w-0 flex-1 overflow-hidden">
-                  <div className="font-semibold text-xs text-stone-800 dark:text-zinc-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-snug break-words">
-                    {p[0]}
+            {topic.patterns.map((p, idx) => {
+              const lesson = LESSONS_DATA[String(topic.id)]?.[String(idx)];
+              const pTitle = patternMode === 'new' && lesson?.name ? lesson.name : p[0];
+              const pSubtitle = patternMode === 'new' && lesson?.when ? lesson.when : p[1];
+
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setActivePatternIdx(idx)}
+                  className="w-full text-left p-2.5 sm:p-3 rounded-xl border border-stone-200 dark:border-zinc-800 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900 hover:bg-orange-50/40 dark:hover:bg-zinc-800/80 transition-all flex items-start gap-2.5 group cursor-pointer min-w-0"
+                >
+                  <span className="w-5 h-5 rounded-md bg-stone-100 dark:bg-zinc-800 group-hover:bg-orange-100 dark:group-hover:bg-orange-950 text-stone-600 dark:text-zinc-400 group-hover:text-orange-700 dark:group-hover:text-orange-300 font-mono text-[11px] font-bold grid place-items-center shrink-0 mt-0.5">
+                    {idx + 1}
+                  </span>
+                  <div className="min-w-0 flex-1 overflow-hidden">
+                    <div className="font-semibold text-xs text-stone-800 dark:text-zinc-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-snug break-words flex items-center justify-between gap-1.5">
+                      <span className="truncate">{pTitle}</span>
+                      {patternMode === 'new' && (
+                        <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 shrink-0 font-bold">
+                          v2
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-stone-400 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-snug break-words">
+                      {pSubtitle}
+                    </div>
                   </div>
-                  <div className="text-[11px] text-stone-400 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-snug break-words">
-                    {p[1]}
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         </aside>
 
